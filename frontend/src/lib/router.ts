@@ -1,12 +1,14 @@
 /**
- * Lightweight browser-native client router.
+ * Lightweight browser-native client router with Universal SPA Fallback.
  *
- * Supports both path-based routing (/resume) and hash-based routing (#/resume)
- * to ensure 100% compatibility across static hosts (Vercel, GitHub Pages)
- * without requiring server rewrites or external router dependencies.
+ * Supports:
+ * - HTML5 pushState pathnames (/resume, /projects, /portal-admin-abeeb)
+ * - Hash fallback routing (#/resume, #resume, #/projects, #projects, #/portal-admin-abeeb)
+ * - SPA redirect query params (?p=/resume or ?route=/resume)
+ * - Built-in <Link /> component preventing accidental hard full-page server reloads
  */
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 export const ADMIN_ROUTE: string =
   (import.meta.env.VITE_ADMIN_PATH as string | undefined) || '/portal-admin-abeeb'
@@ -14,20 +16,47 @@ export const ADMIN_ROUTE: string =
 export const ADMIN_SECRET_KEY: string =
   (import.meta.env.VITE_ADMIN_SECRET_KEY as string | undefined) || 'abeeb-admin-2026'
 
+const cleanRoute = (str: string): string => {
+  if (!str) return '/'
+  const noHash = str.replace(/^#\/?/, '/')
+  const noQuery = noHash.split('?')[0]
+  const trimmed = noQuery.replace(/\/+$/, '')
+  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`
+}
+
 /**
- * Normalizes the current URL path from either pathname or hash.
+ * Normalizes the current URL path from either query redirect, hash, or pathname.
  */
-function getNormalizedPath(): string {
+export function getNormalizedPath(): string {
   if (typeof window === 'undefined') return '/'
 
-  // Check hash route first (e.g., #/portal-admin-abeeb)
-  if (window.location.hash.startsWith('#/')) {
-    return window.location.hash.slice(1).split('?')[0] || '/'
+  // 1. Check query parameter redirect (e.g. from GitHub Pages 404 redirect: ?p=/resume)
+  try {
+    const urlParams = new URLSearchParams(window.location.search)
+    const queryPath = urlParams.get('p') || urlParams.get('route')
+    if (queryPath) {
+      return cleanRoute(decodeURIComponent(queryPath))
+    }
+  } catch {
+    // fallback
   }
 
-  // Otherwise check pathname
-  const path = window.location.pathname.replace(/\/$/, '') || '/'
-  return path
+  // 2. Check hash route (e.g., #/resume, #resume, #/projects, #/portal-admin-abeeb)
+  if (window.location.hash) {
+    const hashCandidate = cleanRoute(window.location.hash)
+    const adminPathClean = cleanRoute(ADMIN_ROUTE)
+    if (
+      hashCandidate === '/resume' ||
+      hashCandidate === '/projects' ||
+      hashCandidate === adminPathClean
+    ) {
+      return hashCandidate
+    }
+  }
+
+  // 3. Check standard pathname (/resume, /projects, /portal-admin-abeeb)
+  const path = cleanRoute(window.location.pathname)
+  return path || '/'
 }
 
 export function useRouter() {
@@ -50,18 +79,57 @@ export function useRouter() {
   const navigate = (to: string) => {
     if (typeof window === 'undefined') return
 
-    // If on a static page without HTML5 pushState fallback support, use hash
-    const targetUrl = to.startsWith('/') ? to : `/${to}`
-    window.history.pushState({}, '', targetUrl)
+    const targetUrl = cleanRoute(to)
+    try {
+      window.history.pushState({}, '', targetUrl)
+    } catch {
+      window.location.hash = targetUrl
+    }
     setCurrentPath(targetUrl)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const navigateHash = (to: string) => {
     if (typeof window === 'undefined') return
-    window.location.hash = to.startsWith('#') ? to : `#${to}`
+    const targetHash = to.startsWith('#') ? to : `#${to.replace(/^\//, '')}`
+    window.location.hash = targetHash
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return { currentPath, navigate, navigateHash, ADMIN_ROUTE, ADMIN_SECRET_KEY }
+}
+
+export function Link({
+  to,
+  children,
+  className,
+  onClick,
+  ...props
+}: {
+  to: string
+  children: React.ReactNode
+  className?: string
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void
+} & React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+  const { navigate } = useRouter()
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (onClick) onClick(e)
+    // Only intercept local relative routes
+    if (!to.startsWith('http') && !to.startsWith('#') && !to.startsWith('mailto:')) {
+      e.preventDefault()
+      navigate(to)
+    }
+  }
+
+  return React.createElement(
+    'a',
+    {
+      href: to,
+      onClick: handleClick,
+      className,
+      ...props,
+    },
+    children
+  )
 }

@@ -116,6 +116,35 @@ Go to your domain's **DNS Management / Advanced DNS** panel and add these record
 
 ---
 
+### Step 3.3: Resolving "404 Not Found" on Sub-URLs (`/resume`, `/projects`, `/portal-admin-abeeb`)
+
+#### Why this happens on web servers:
+Single Page Applications (React + Vite) produce a single entry file (`index.html`). When a visitor loads `abeeboladipupo.com/`, the server serves `index.html`. But when a visitor directly types or refreshes `abeeboladipupo.com/resume`, unconfigured web servers look for a physical file named `/resume` on disk. If that file is missing, the web host returns a **404 Not Found**.
+
+#### The 4-Layer Resolution Configured in this Repository:
+We have built four complementary fail-safes so sub-URLs work on **any** web server:
+
+1. **Vercel Rewrites ([`vercel.json`](file:///Users/obafemiawolowo/Desktop/abeeboladipupo_portfolio/vercel.json) & [`frontend/vercel.json`](file:///Users/obafemiawolowo/Desktop/abeeboladipupo_portfolio/frontend/vercel.json))**:
+   Routes all incoming paths (`/(.*)`) directly to `/index.html`.
+2. **Cloudflare Pages & Netlify ([`frontend/public/_redirects`](file:///Users/obafemiawolowo/Desktop/abeeboladipupo_portfolio/frontend/public/_redirects))**:
+   Automatically copied to `dist/_redirects`, telling edge CDNs to serve `/index.html` with status 200 for all paths (`/*  /index.html  200`).
+3. **Apache / cPanel Hosting ([`frontend/public/.htaccess`](file:///Users/obafemiawolowo/Desktop/abeeboladipupo_portfolio/frontend/public/.htaccess))**:
+   Rewrites missing file/directory requests to `/index.html` using `mod_rewrite`.
+4. **Physical Static HTML Fallback Generator ([`frontend/vite.config.ts`](file:///Users/obafemiawolowo/Desktop/abeeboladipupo_portfolio/frontend/vite.config.ts))**:
+   During `npm run build`, Vite automatically generates physical directory entrypoints:
+   - `dist/resume/index.html`
+   - `dist/projects/index.html`
+   - `dist/portal-admin-abeeb/index.html`
+   - `dist/404.html`
+   This guarantees that even dumb static hosts with **zero** rewrite support will find physical files on disk and return 200 OK!
+5. **Universal Hash Fallback**:
+   Every route is also fully accessible via URL fragment hashes:
+   - `https://abeeboladipupo.com/#/resume` or `https://abeeboladipupo.com/#resume`
+   - `https://abeeboladipupo.com/#/projects` or `https://abeeboladipupo.com/#projects`
+   - `https://abeeboladipupo.com/#/portal-admin-abeeb` (Secret Admin Console)
+
+---
+
 ## 4. Alternative Frontend Hosting (Cloudflare Pages or Netlify)
 
 ### Option B: Cloudflare Pages

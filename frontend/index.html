@@ -14,6 +14,21 @@
     <meta property="og:title" content="Abeeb Oladipupo | Senior Software Engineer &amp; Cloud Architect" />
     <meta property="og:description" content="Building resilient systems that product teams can trust. Shipped platform features, cloud architecture, and interactive project demos." />
     <meta property="og:image" content="/favicon.svg" />
+    <script>
+      (function() {
+        var redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect && redirect !== location.href) {
+          history.replaceState(null, null, redirect);
+        } else {
+          var params = new URLSearchParams(window.location.search);
+          var p = params.get('p') || params.get('route');
+          if (p) {
+            history.replaceState(null, null, decodeURIComponent(p));
+          }
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
