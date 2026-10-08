@@ -50,8 +50,14 @@ jobs:
           cache: 'maven'
 
       - name: Make Maven Wrapper Executable
-        run: chmod +x backend/abeeboladipupo_portfolio/mvnw
+        run: |
+          chmod +x backend/abeeboladipupo_portfolio/mvnw
+          chmod +x services/portfolio-api/mvnw
 
       - name: Run Backend Tests
         working-directory: backend/abeeboladipupo_portfolio
         run: ./mvnw clean test
+
+      - name: Compile Portfolio API Clean Architecture Service
+        working-directory: services/portfolio-api
+        run: ./mvnw clean test-compile

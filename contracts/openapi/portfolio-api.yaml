@@ -1,0 +1,129 @@
+# contracts/openapi/portfolio-api.yaml
+openapi: 3.1.0
+info:
+  title: Personal Portfolio API
+  version: 1.0.0
+  description: Public content and protected CMS endpoints for https://www.abeeboladipupo.com.
+servers:
+  - url: https://api.abeeboladipupo.com/api/v1
+paths:
+  /projects:
+    get:
+      operationId: listProjects
+      summary: List published projects
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - name: featured
+        in: query
+        schema: { type: boolean }
+      responses:
+        '200': { description: Project page, content: { application/json: { schema: { $ref: '#/components/schemas/ProjectPage' } } } }
+        '429': { $ref: '#/components/responses/Problem' }
+  /projects/{slug}:
+    get:
+      operationId: getProjectBySlug
+      parameters: [ { $ref: '#/components/parameters/Slug' } ]
+      responses:
+        '200': { description: Project, content: { application/json: { schema: { $ref: '#/components/schemas/Project' } } } }
+        '404': { $ref: '#/components/responses/Problem' }
+  /experience:
+    get:
+      operationId: listExperience
+      responses: { '200': { description: Experience, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Experience' } } } } } }
+  /skills:
+    get:
+      operationId: listSkills
+      responses: { '200': { description: Skills, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Skill' } } } } } }
+  /posts:
+    get:
+      operationId: listPosts
+      parameters: [ { $ref: '#/components/parameters/Page' }, { $ref: '#/components/parameters/Size' } ]
+      responses: { '200': { description: Blog post page, content: { application/json: { schema: { $ref: '#/components/schemas/BlogPostPage' } } } } }
+  /posts/{slug}:
+    get:
+      operationId: getPostBySlug
+      parameters: [ { $ref: '#/components/parameters/Slug' } ]
+      responses: { '200': { description: Blog post, content: { application/json: { schema: { $ref: '#/components/schemas/BlogPost' } } } }, '404': { $ref: '#/components/responses/Problem' } }
+  /contact-messages:
+    post:
+      operationId: createContactMessage
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ContactMessageCreate' } } } }
+      responses: { '202': { description: Accepted }, '400': { $ref: '#/components/responses/Problem' }, '429': { $ref: '#/components/responses/Problem' } }
+  /products:
+    get:
+      operationId: listProducts
+      summary: List active personal-brand store offerings; no checkout is provided
+      responses: { '200': { description: Product catalog, content: { application/json: { schema: { type: array, items: { $ref: '#/components/schemas/Product' } } } } } }
+  /products/{slug}:
+    get:
+      operationId: getProductBySlug
+      parameters: [ { $ref: '#/components/parameters/Slug' } ]
+      responses: { '200': { description: Product, content: { application/json: { schema: { $ref: '#/components/schemas/Product' } } } }, '404': { $ref: '#/components/responses/Problem' } }
+  /admin/projects:
+    post:
+      operationId: createProject
+      security: [ { oauth2: [ ADMIN, EDITOR ] } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ProjectCreate' } } } }
+      responses: { '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Project' } } } }, '400': { $ref: '#/components/responses/Problem' }, '403': { $ref: '#/components/responses/Problem' } }
+  /admin/projects/{id}:
+    put:
+      operationId: updateProject
+      security: [ { oauth2: [ ADMIN, EDITOR ] } ]
+      parameters: [ { $ref: '#/components/parameters/Id' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ProjectUpdate' } } } }
+      responses: { '200': { description: Updated, content: { application/json: { schema: { $ref: '#/components/schemas/Project' } } } }, '409': { $ref: '#/components/responses/Problem' } }
+  /admin/products:
+    post:
+      operationId: createProduct
+      security: [ { oauth2: [ ADMIN ] } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ProductCreate' } } } }
+      responses: { '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Product' } } } }, '400': { $ref: '#/components/responses/Problem' }, '403': { $ref: '#/components/responses/Problem' } }
+  /admin/products/{id}:
+    put:
+      operationId: updateProduct
+      security: [ { oauth2: [ ADMIN ] } ]
+      parameters: [ { $ref: '#/components/parameters/Id' } ]
+      requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/ProductUpdate' } } } }
+      responses: { '200': { description: Updated, content: { application/json: { schema: { $ref: '#/components/schemas/Product' } } } }, '409': { $ref: '#/components/responses/Problem' } }
+  /admin/{resource}/{id}:
+    delete:
+      operationId: softDeleteContent
+      description: Admin-only soft deletion for projects, experience, skills, and posts.
+      security: [ { oauth2: [ ADMIN ] } ]
+      parameters: [ { $ref: '#/components/parameters/Resource' }, { $ref: '#/components/parameters/Id' } ]
+      responses: { '204': { description: Deleted }, '403': { $ref: '#/components/responses/Problem' }, '404': { $ref: '#/components/responses/Problem' } }
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: 'https://<auth0-tenant>.us.auth0.com/authorize'
+          tokenUrl: 'https://<auth0-tenant>.us.auth0.com/oauth/token'
+          scopes:
+            ADMIN: 'Admin CMS access'
+            EDITOR: 'Content editing'
+            VISITOR: 'Read-only admin access'
+  parameters:
+    Page: { name: page, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+    Size: { name: size, in: query, schema: { type: integer, minimum: 1, maximum: 50, default: 12 } }
+    Slug: { name: slug, in: path, required: true, schema: { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$' } }
+    Id: { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    Resource: { name: resource, in: path, required: true, schema: { type: string, enum: [projects, experience, skills, posts, products] } }
+  responses:
+    Problem: { description: RFC 7807 problem detail, content: { application/problem+json: { schema: { $ref: '#/components/schemas/ProblemDetail' } } } }
+  schemas:
+    ProjectCreate: { type: object, required: [slug, title, summary, contentMarkdown], properties: { slug: { type: string, maxLength: 120 }, title: { type: string, maxLength: 160 }, summary: { type: string, maxLength: 500 }, contentMarkdown: { type: string }, repositoryUrl: { type: string, format: uri }, liveUrl: { type: string, format: uri }, demoUrl: { type: string, format: uri }, published: { type: boolean }, featured: { type: boolean }, displayOrder: { type: integer, minimum: 0 } } }
+    ProjectUpdate: { allOf: [ { $ref: '#/components/schemas/ProjectCreate' }, { type: object, required: [version], properties: { version: { type: integer, minimum: 0 } } } ] }
+    Project: { allOf: [ { $ref: '#/components/schemas/ProjectCreate' }, { type: object, required: [id, version, updatedAt], properties: { id: { type: string, format: uuid }, version: { type: integer }, updatedAt: { type: string, format: date-time } } } ] }
+    ProjectPage: { type: object, required: [content, page, size, totalElements], properties: { content: { type: array, items: { $ref: '#/components/schemas/Project' } }, page: { type: integer }, size: { type: integer }, totalElements: { type: integer, format: int64 } } }
+    Skill: { type: object, required: [id, name, category, displayOrder], properties: { id: { type: string, format: uuid }, name: { type: string, maxLength: 80 }, category: { type: string, maxLength: 80 }, displayOrder: { type: integer, minimum: 0 } } }
+    Experience: { type: object, required: [id, company, role, descriptionMarkdown, startedOn, currentRole], properties: { id: { type: string, format: uuid }, company: { type: string }, role: { type: string }, location: { type: string }, descriptionMarkdown: { type: string }, startedOn: { type: string, format: date }, endedOn: { type: string, format: date }, currentRole: { type: boolean } } }
+    BlogPost: { type: object, required: [id, slug, title, excerpt, bodyMarkdown, published], properties: { id: { type: string, format: uuid }, slug: { type: string }, title: { type: string }, excerpt: { type: string }, bodyMarkdown: { type: string }, coverImageUrl: { type: string, format: uri }, published: { type: boolean }, publishedAt: { type: string, format: date-time } } }
+    BlogPostPage: { type: object, required: [content, page, size, totalElements], properties: { content: { type: array, items: { $ref: '#/components/schemas/BlogPost' } }, page: { type: integer }, size: { type: integer }, totalElements: { type: integer, format: int64 } } }
+    ContactMessageCreate: { type: object, required: [senderName, senderEmail, subject, body], properties: { senderName: { type: string, maxLength: 120 }, senderEmail: { type: string, format: email, maxLength: 320 }, subject: { type: string, maxLength: 200 }, body: { type: string, maxLength: 10000 } } }
+    ProductCreate: { type: object, required: [slug, title, summary, descriptionMarkdown, availabilityStatus], properties: { slug: { type: string, maxLength: 120 }, title: { type: string, maxLength: 160 }, summary: { type: string, maxLength: 500 }, descriptionMarkdown: { type: string }, imageUrl: { type: string, format: uri }, availabilityStatus: { type: string, enum: [COMING_SOON, INQUIRY_ONLY] }, active: { type: boolean }, displayOrder: { type: integer, minimum: 0 } } }
+    ProductUpdate: { allOf: [ { $ref: '#/components/schemas/ProductCreate' }, { type: object, required: [version], properties: { version: { type: integer, minimum: 0 } } } ] }
+    Product: { allOf: [ { $ref: '#/components/schemas/ProductCreate' }, { type: object, required: [id, version, updatedAt], properties: { id: { type: string, format: uuid }, version: { type: integer }, updatedAt: { type: string, format: date-time } } } ] }
+    ProblemDetail: { type: object, required: [type, title, status], properties: { type: { type: string, format: uri }, title: { type: string }, status: { type: integer }, detail: { type: string }, instance: { type: string }, requestId: { type: string }, errors: { type: array, items: { type: object, properties: { field: { type: string }, message: { type: string } } } } } }
