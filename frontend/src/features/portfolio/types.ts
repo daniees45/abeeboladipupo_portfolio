@@ -6,12 +6,19 @@ export interface PortfolioProject {
   title: string
   slug: string
   summary: string
+  problem: string
+  solution: string
+  architectureFlow: string
+  keyFeatures: string[]
   stack: string[]
   demoUrl: string
   repoUrl?: string
+  githubUrl?: string
   year: number
   status: ProjectStatus
   demoViewport: DemoViewport
+  liveDemoType?: 'fyp' | 'timetabler' | 'portfolio'
+  category?: 'academic' | 'ai' | 'platform' | 'security'
 }
 
 export interface PortfolioProjectApiResponse {
@@ -19,10 +26,16 @@ export interface PortfolioProjectApiResponse {
   title: string
   slug: string
   summary: string
+  problem?: string
+  solution?: string
+  architectureFlow?: string
+  keyFeatures?: string[]
   stack: string[]
   status: ProjectStatus
   demoViewport: DemoViewport
   year: number
+  githubUrl?: string
+  liveDemoType?: 'fyp' | 'timetabler' | 'portfolio'
 }
 
 export interface PortfolioMetricsApiResponse {

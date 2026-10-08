@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /portal-admin-abeeb
+Disallow: /admin
+
+Sitemap: https://www.abeeboladipupo.com/sitemap.xml

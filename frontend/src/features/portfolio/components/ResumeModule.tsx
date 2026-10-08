@@ -13,7 +13,7 @@ import { resumeTemplates, type ResumeTemplate } from '../data/resumeTemplates'
 import { exportResumeAsDoc, exportResumeAsMarkdown, printResumeTemplate } from '../utils/resumeExport'
 
 export function ResumeModule() {
-  const [selectedTemplateId, setSelectedTemplateId] = useState<ResumeTemplate['id']>('cloud-architect')
+  const [selectedTemplateId, setSelectedTemplateId] = useState<ResumeTemplate['id']>('software-developer')
 
   const activeTemplate = resumeTemplates[selectedTemplateId]
 
@@ -34,7 +34,7 @@ export function ResumeModule() {
             Professional Profile &amp; Résumé
           </h2>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Select a specialized template below. Downloads dynamically generate with that template's content and styling.
+            Select a specialized career track below. Downloads dynamically generate with that template's content and styling.
           </p>
         </div>
 
@@ -75,9 +75,9 @@ export function ResumeModule() {
       {/* Template Switcher Tabs */}
       <div className="mt-5 border-b border-slate-200 pb-4 dark:border-slate-800 no-print">
         <p className="mb-2.5 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-          Target Role Template:
+          Select Career Track Template:
         </p>
-        <div className="grid gap-2 sm:grid-cols-3">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
           {(Object.values(resumeTemplates) as ResumeTemplate[]).map((tmpl) => {
             const isSelected = tmpl.id === selectedTemplateId
             return (
@@ -197,6 +197,30 @@ export function ResumeModule() {
             ))}
           </div>
         </div>
+
+        {/* Featured Projects */}
+        {activeTemplate.projects && activeTemplate.projects.length > 0 && (
+          <div className="mt-6 border-t border-slate-200 pt-5 dark:border-slate-800">
+            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-400">
+              Featured Systems &amp; Projects
+            </h4>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {activeTemplate.projects.map((proj, idx) => (
+                <div key={idx} className="rounded-xl border border-slate-200 bg-white p-3.5 dark:border-slate-800 dark:bg-slate-900/60">
+                  <h5 className="text-xs font-bold text-slate-900 dark:text-white">{proj.name}</h5>
+                  <p className="mt-1 text-[11px] leading-relaxed text-slate-600 dark:text-slate-300">{proj.description}</p>
+                  <div className="mt-2.5 flex flex-wrap gap-1">
+                    {proj.technologies.map((t) => (
+                      <span key={t} className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Education & Certifications */}
         <div className="mt-6 border-t border-slate-200 pt-5 dark:border-slate-800">

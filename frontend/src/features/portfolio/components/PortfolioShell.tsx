@@ -1,9 +1,11 @@
 /**
  * Root portfolio shell for the public-facing site.
  *
- * Designed as a senior engineering portfolio showcase for Abeeb Oladipupo:
- * - Senior Software Engineer & Cloud Solutions Architect
- * - Interactive recruiter demo sandbox, template-driven resume engine, and project filters
+ * Designed as a high-credibility engineering platform showcase for Abeeb Oladipupo:
+ * - Software Developer | Systems & Cybersecurity
+ * - Computer Science graduate (Valley View University, WES evaluated, Cisco certified)
+ * - Deep engineering case studies, interactive recruiter sandbox demos, and engineering labs
+ * - 4-track career resume engine with dynamic Word, Markdown, and Print/PDF export
  * - Light/dark theme toggle with responsive layout and mobile drawer
  */
 
@@ -12,41 +14,36 @@ import heroImage from '../../../assets/hero.png'
 import { usePortfolioMetrics } from '../hooks/usePortfolioMetrics'
 import { usePortfolioProjects } from '../hooks/usePortfolioProjects'
 import { ProjectDemoView } from './ProjectDemoView'
+import { LabsSection } from './LabsSection'
 import { ResumeModule } from './ResumeModule'
 import { useRouter } from '../../../lib/router'
 
 const viewportLabelMap = {
-  desktop: 'Desktop',
-  tablet: 'Tablet',
-  mobile: 'Mobile',
+  desktop: 'Desktop View',
+  tablet: 'Tablet View',
+  mobile: 'Mobile View',
 } as const
-
-const formatCompactNumber = (value: number) =>
-  new Intl.NumberFormat('en-US', {
-    notation: 'compact',
-    maximumFractionDigits: 1,
-  }).format(value)
 
 const engineeringPrinciples = [
   {
     step: '01',
-    title: 'Reliability & Fault-Tolerance',
-    description: 'Resilient architectures designed for high concurrency, graceful degradation, circuit breaking, and sub-25ms latency guarantees.',
+    title: 'Clean Code & Architecture',
+    description: 'Clear separation of concerns, Domain-Driven Design (DDD), interface contracts, and automated testing across all layers.',
   },
   {
     step: '02',
-    title: 'Precision Data Modeling',
-    description: 'Strict PostgreSQL schemas, atomic transactions, HikariCP connection pooling, and automated versioned database migrations.',
+    title: 'Defensive Security by Design',
+    description: 'Least privilege access, Role-Based Access Control (RBAC), stateless JWT validation, password hashing, and OWASP mitigation.',
   },
   {
     step: '03',
-    title: 'Real-Time Observability',
-    description: 'Sub-millisecond Redis caching, distributed tracing, OpenTelemetry metrics, and production telemetry monitoring.',
+    title: 'Precision Relational Modeling',
+    description: 'Normalized schemas (3NF), strict foreign key constraints, ACID transaction safety, and versioned Flyway database migrations.',
   },
   {
     step: '04',
-    title: 'Product Craftsmanship',
-    description: 'Modern React 19 and TypeScript interfaces built for rapid delivery, accessible UX, and seamless responsive design.',
+    title: 'Observability & Reliability',
+    description: 'Proactive Redis cache-aside patterns, connection pooling with HikariCP, rate limiting, and structured RFC 7807 problem details.',
   },
 ]
 
@@ -54,6 +51,8 @@ const navLinks = [
   { href: '#about', label: 'About' },
   { href: '#projects', label: 'Projects' },
   { href: '#sandbox', label: 'Live Sandbox' },
+  { href: '#labs', label: 'Engineering Labs' },
+  { href: '#credentials', label: 'Credentials' },
   { href: '#resume', label: 'Résumé' },
   { href: '#principles', label: 'Principles' },
   { href: '#contact', label: 'Contact' },
@@ -72,7 +71,7 @@ export function PortfolioShell() {
   })
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'cloud' | 'fullstack'>('all')
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'systems' | 'fullstack'>('all')
   const [copiedEmail, setCopiedEmail] = useState(false)
 
   // Interactive contact form state
@@ -94,8 +93,8 @@ export function PortfolioShell() {
   }))
 
   const filteredProjects = portfolioProjects.filter((p) => {
-    if (selectedCategory === 'cloud') {
-      return p.stack.some((s) => ['Java', 'Spring Boot', 'PostgreSQL', 'Redis', 'Docker', 'Terraform'].includes(s))
+    if (selectedCategory === 'systems') {
+      return p.stack.some((s) => ['Java', 'Spring Boot', 'Python', 'Flask', 'PostgreSQL', 'MySQL', 'CSP'].includes(s))
     }
     if (selectedCategory === 'fullstack') {
       return p.stack.some((s) => ['React', 'TypeScript', 'Tailwind CSS', 'Vite'].includes(s))
@@ -118,8 +117,8 @@ export function PortfolioShell() {
   }
 
   const stats = [
-    { label: 'Published Systems', value: metrics ? String(metrics.totalProjects) : '3' },
-    { label: 'Profile Views', value: metrics ? formatCompactNumber(metrics.totalViews) : '14.2K' },
+    { label: 'Verified Systems', value: metrics ? String(metrics.totalProjects) : '3' },
+    { label: 'Engineering Case Studies', value: '3 Built' },
     {
       label: 'Redis Cache Status',
       value: metrics ? metrics.cacheStatus : metricsLoading ? 'Loading...' : 'HIT',
@@ -144,7 +143,7 @@ export function PortfolioShell() {
                     Abeeb Oladipupo
                   </p>
                   <p className="text-[10px] uppercase tracking-wider text-cyan-600 dark:text-cyan-400 font-semibold">
-                    Cloud Architect • Senior Engineer
+                    Software Developer | Systems &amp; Cybersecurity
                   </p>
                 </div>
               </a>
@@ -155,7 +154,7 @@ export function PortfolioShell() {
                   <a
                     key={link.href}
                     href={link.href}
-                    className="rounded-full px-3 py-1.5 transition hover:bg-slate-200/80 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
+                    className="rounded-full px-2.5 py-1.5 transition hover:bg-slate-200/80 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
                   >
                     {link.label}
                   </a>
@@ -183,7 +182,7 @@ export function PortfolioShell() {
                 <button
                   type="button"
                   onClick={() => setIsDarkMode((current) => !current)}
-                  className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:bg-slate-800"
+                  className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-slate-400 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:bg-slate-800 cursor-pointer"
                   aria-label="Toggle color theme"
                 >
                   {isDarkMode ? '☀️ Light' : '🌙 Dark'}
@@ -253,47 +252,61 @@ export function PortfolioShell() {
               {/* Availability Status Badge */}
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Available for Senior Engineering Roles • US Authorized</span>
+                <span>🎓 Computer Science Graduate • Available for Full-Time Roles</span>
               </div>
 
               {/* Main Headline */}
               <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl dark:text-white leading-[1.12]">
-                Architecting resilient <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-sky-400">cloud systems</span> &amp; platforms.
+                I build <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-sky-400">secure, scalable software</span> and practical technology solutions.
               </h1>
 
               <p className="mt-5 max-w-xl text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-300">
-                I am a Senior Software Engineer and Cloud Solutions Architect with 6+ years shipping high-throughput Spring Boot microservices, scalable PostgreSQL architectures, and responsive React applications built for enterprise scale.
+                Computer Science graduate focused on software development, backend systems, databases, Linux, cloud infrastructure, and cybersecurity. Passionate about engineering systems that solve real organizational problems.
               </p>
 
-              {/* CTA Action Buttons */}
+              {/* 30-Second Recruiter Action Buttons */}
               <div className="mt-7 flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => navigate('/projects')}
+                <a
+                  href="#projects"
                   className="rounded-full bg-cyan-500 px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 shadow-md shadow-cyan-500/20 cursor-pointer"
                 >
-                  Explore Systems &rarr;
-                </button>
+                  🚀 Explore Projects &darr;
+                </a>
                 <a
                   href="#sandbox"
                   className="rounded-full border border-cyan-500/40 bg-cyan-500/10 px-5 py-3 text-sm font-semibold text-cyan-700 dark:text-cyan-300 transition hover:bg-cyan-500/20"
                 >
-                  ⚡ Live Sandbox Demos
+                  ⚡ Live Interactive Demos
                 </a>
-                <button
-                  type="button"
-                  onClick={() => navigate('/resume')}
+                <a
+                  href="#resume"
                   className="rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:border-slate-500 dark:hover:bg-slate-800 cursor-pointer"
                 >
-                  📄 Dedicated Résumé Page
-                </button>
+                  📄 View Résumé &darr;
+                </a>
+                <a
+                  href="https://github.com/abeeboladipupo"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                >
+                  🐙 GitHub
+                </a>
+                <a
+                  href="https://linkedin.com/in/abeeboladipupo"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                >
+                  💼 LinkedIn
+                </a>
               </div>
 
               {/* Key Competency Badges */}
               <div className="mt-8">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Core Tech Stack:</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Core Technical Stack:</p>
                 <div className="flex flex-wrap gap-2 text-xs font-medium text-slate-700 dark:text-slate-200">
-                  {['Java 21', 'Spring Boot 3', 'PostgreSQL', 'Redis', 'Docker', 'Kubernetes', 'Terraform', 'React 19', 'TypeScript', 'Tailwind CSS'].map((tech) => (
+                  {['Java 21', 'Python', 'TypeScript', 'SQL', 'Spring Boot 3', 'Flask', 'PostgreSQL', 'MySQL', 'React 19', 'Linux', 'Docker', 'Git'].map((tech) => (
                     <span key={tech} className="rounded-lg border border-slate-200 bg-white/80 px-2.5 py-1 shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
                       {tech}
                     </span>
@@ -302,7 +315,7 @@ export function PortfolioShell() {
               </div>
             </div>
 
-            {/* Hero Visual Card with Real-time Telemetry & Layered Platform graphic */}
+            {/* Hero Visual Card with Real-time Telemetry & Architecture graphic */}
             <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl shadow-slate-950/10 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-900/80 dark:shadow-slate-950/40">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
                 
@@ -315,7 +328,7 @@ export function PortfolioShell() {
                   </div>
                   <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-slate-400">
                     <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>Live Telemetry Engine</span>
+                    <span>System Telemetry</span>
                   </div>
                 </div>
 
@@ -323,9 +336,9 @@ export function PortfolioShell() {
                   {/* System Health Card */}
                   <div className="flex items-center justify-between rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-3.5">
                     <div>
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-300 font-semibold">Service Health</p>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-cyan-700 dark:text-cyan-300 font-semibold">Platform Status</p>
                       <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
-                        {isOfflineFallback ? 'Demo Mode (Offline Fallback)' : 'UP • 99.99% Availability'}
+                        {isOfflineFallback ? 'Offline Fallback (Active)' : 'UP • Clean Architecture Active'}
                       </p>
                     </div>
                     <img
@@ -348,12 +361,12 @@ export function PortfolioShell() {
                   {/* Latency & Specs ticker */}
                   <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900/60 text-xs">
                     <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-                      <span>Target API p99 Latency:</span>
-                      <strong className="text-emerald-500 font-mono">&lt; 25 ms</strong>
+                      <span>Database Engine:</span>
+                      <strong className="text-emerald-500 font-mono">PostgreSQL / MySQL (3NF)</strong>
                     </div>
                     <div className="mt-2 flex items-center justify-between text-slate-500 dark:text-slate-400">
-                      <span>Database Isolation:</span>
-                      <strong className="text-cyan-400 font-mono">PostgreSQL READ COMMITTED</strong>
+                      <span>Security &amp; Auth:</span>
+                      <strong className="text-cyan-400 font-mono">JWT + RBAC + OIDC</strong>
                     </div>
                   </div>
                 </div>
@@ -364,23 +377,34 @@ export function PortfolioShell() {
           {/* About / Why Teams Hire Me Section */}
           <section id="about" className="grid gap-8 border-t border-slate-200 py-14 dark:border-slate-800 md:grid-cols-2">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-700 dark:text-cyan-300">Why teams hire me</p>
-              <h2 className="mt-3 text-3xl font-bold text-slate-900 dark:text-white">Engineering clarity, distributed scale, and product delivery.</h2>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-700 dark:text-cyan-300">Engineering Profile</p>
+              <h2 className="mt-3 text-3xl font-bold text-slate-900 dark:text-white">
+                Solid Computer Science foundations, hands-on systems capability.
+              </h2>
               <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
-                I bridge the gap between high-level architectural strategy and hands-on code execution. Whether designing zero-downtime deployment topologies, tuning database queries under heavy load, or delivering pixel-perfect React frontends, I focus on systems that scale gracefully.
+                I am a Computer Science graduate from Valley View University with academic credentials evaluated by World Education Services (WES) and formal cybersecurity training from Cisco. Rather than presenting a generic résumé, I demonstrate capability through working software, clear architectural reasoning, and defensive security practices.
               </p>
               <div className="mt-6 flex flex-wrap gap-4 text-xs font-semibold text-slate-500 dark:text-slate-400">
-                <span className="flex items-center gap-1.5"><span className="text-emerald-400">✓</span> No visa sponsorship needed</span>
-                <span className="flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Remote &amp; On-Site Ready</span>
-                <span className="flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Production Track Record</span>
+                <span className="flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Open to Full-Time Roles</span>
+                <span className="flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Remote, Hybrid &amp; On-Site Ready</span>
+                <span className="flex items-center gap-1.5"><span className="text-emerald-400">✓</span> Proven Working Systems</span>
               </div>
             </div>
 
             <div className="space-y-3">
               {[
-                { title: 'Full-Stack Product Ownership', desc: 'From database schemas and Spring Boot REST APIs to polished React 19 UIs and responsive design systems.' },
-                { title: 'Cloud Reliability & Scale', desc: 'Containerized architectures, automated CI/CD pipelines, Kubernetes, and zero-downtime rolling releases.' },
-                { title: 'Performance & Telemetry', desc: 'Proactive caching with Redis, HikariCP database pool optimization, and sub-25ms response time tuning.' },
+                {
+                  title: 'Core Software Development',
+                  desc: 'Proficient in Java and Python with clean architectural boundaries, object-oriented design patterns, RESTful APIs, and rigorous unit testing.',
+                },
+                {
+                  title: 'Database Architecture & SQL',
+                  desc: 'Designing normalized schemas (3NF) in PostgreSQL and MySQL, writing complex queries, enforcing foreign key integrity, and optimizing indexes.',
+                },
+                {
+                  title: 'Systems & Cybersecurity Focus',
+                  desc: 'Trained in Cisco cybersecurity principles, Linux server administration, Role-Based Access Control (RBAC), stateless JWT authentication, and OWASP mitigation.',
+                },
               ].map((item, i) => (
                 <div key={i} className="flex items-start gap-3.5 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900/70">
                   <span className="mt-0.5 inline-flex h-6 w-6 flex-none items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
@@ -399,8 +423,11 @@ export function PortfolioShell() {
           <section id="projects" className="py-14 border-t border-slate-200 dark:border-slate-800">
             <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-700 dark:text-cyan-300">Portfolio</p>
-                <h2 className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">Selected engineering systems</h2>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-700 dark:text-cyan-300">Centerpiece Projects</p>
+                <h2 className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">Engineering Case Studies</h2>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  Real systems with detailed technical breakdowns: Problem, Solution, Architecture Flow, and Live Interactive Demos.
+                </p>
               </div>
 
               {/* Category Filter Pills */}
@@ -418,14 +445,14 @@ export function PortfolioShell() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSelectedCategory('cloud')}
+                  onClick={() => setSelectedCategory('systems')}
                   className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition ${
-                    selectedCategory === 'cloud'
+                    selectedCategory === 'systems'
                       ? 'bg-cyan-500 text-slate-950 shadow-sm shadow-cyan-500/20'
                       : 'border border-slate-300 bg-white text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300'
                   }`}
                 >
-                  Cloud &amp; Telemetry
+                  Backend &amp; Systems
                 </button>
                 <button
                   type="button"
@@ -436,7 +463,7 @@ export function PortfolioShell() {
                       : 'border border-slate-300 bg-white text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300'
                   }`}
                 >
-                  Full-Stack React
+                  Full-Stack
                 </button>
                 <button
                   type="button"
@@ -457,31 +484,66 @@ export function PortfolioShell() {
                 {filteredProjects.map((project) => (
                   <article
                     key={project.id}
-                    className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-950/5 transition duration-200 hover:-translate-y-1 hover:border-cyan-500/50 dark:border-slate-800 dark:bg-slate-900/80 dark:shadow-slate-950/25"
+                    className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-5 shadow-lg shadow-slate-950/5 transition duration-200 hover:-translate-y-1 hover:border-cyan-500/50 dark:border-slate-800 dark:bg-slate-900/80 dark:shadow-slate-950/25"
                   >
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
-                        {project.status}
-                      </span>
-                      <span className="text-xs text-slate-500 dark:text-slate-400">{project.year}</span>
-                    </div>
-
-                    <div className="mt-5">
-                      <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-cyan-500 transition">
-                        {project.title}
-                      </h3>
-                      <p className="mt-2.5 text-xs leading-relaxed text-slate-600 dark:text-slate-300">{project.summary}</p>
-                    </div>
-
-                    <div className="mt-5 flex flex-wrap gap-1.5">
-                      {project.stack.map((tech) => (
-                        <span
-                          key={`${project.id}-${tech}`}
-                          className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300"
-                        >
-                          {tech}
+                    <div>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300">
+                          {project.status}
                         </span>
-                      ))}
+                        <span className="text-xs text-slate-500 dark:text-slate-400">{project.year}</span>
+                      </div>
+
+                      <div className="mt-4">
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-cyan-500 transition">
+                          {project.title}
+                        </h3>
+                        <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-300">{project.summary}</p>
+                      </div>
+
+                      {/* Architecture Flow Strip */}
+                      {project.architectureFlow && (
+                        <div className="mt-3 rounded-lg bg-slate-100 p-2 text-[10px] font-mono text-cyan-800 dark:bg-slate-950 dark:text-cyan-300">
+                          <span className="font-semibold text-slate-500">Flow:</span> {project.architectureFlow}
+                        </div>
+                      )}
+
+                      {/* Problem & Solution Mini Case Study */}
+                      {project.problem && (
+                        <div className="mt-3.5 space-y-2 rounded-xl border border-slate-200/80 bg-slate-50/70 p-3 text-xs dark:border-slate-800/80 dark:bg-slate-950/50">
+                          <p className="text-slate-700 dark:text-slate-300">
+                            <strong className="text-slate-900 dark:text-white">Challenge:</strong> {project.problem}
+                          </p>
+                          {project.solution && (
+                            <p className="text-slate-700 dark:text-slate-300">
+                              <strong className="text-slate-900 dark:text-white">Solution:</strong> {project.solution}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Key Features */}
+                      {project.keyFeatures && (
+                        <ul className="mt-3.5 space-y-1 text-[11px] text-slate-600 dark:text-slate-400">
+                          {project.keyFeatures.slice(0, 3).map((feat, idx) => (
+                            <li key={idx} className="flex items-center gap-1.5">
+                              <span className="text-emerald-500 font-bold">✓</span>
+                              <span>{feat}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
+                      <div className="mt-4 flex flex-wrap gap-1.5">
+                        {project.stack.map((tech) => (
+                          <span
+                            key={`${project.id}-${tech}`}
+                            className="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] text-slate-600 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
                     </div>
 
                     <div className="mt-5 flex items-center justify-between border-t border-slate-200 pt-3.5 dark:border-slate-800">
@@ -506,12 +568,102 @@ export function PortfolioShell() {
             <ProjectDemoView />
           </section>
 
+          {/* Engineering Labs Section */}
+          <section id="labs" className="py-14 border-t border-slate-200 dark:border-slate-800">
+            <LabsSection />
+          </section>
+
+          {/* Verified Credentials & Education Section */}
+          <section id="credentials" className="py-14 border-t border-slate-200 dark:border-slate-800">
+            <div className="mb-8">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-700 dark:text-cyan-300">Verified Credentials</p>
+              <h2 className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">Education &amp; Professional Certifications</h2>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                Authentic academic qualifications and industry-recognized certifications verified for global opportunities.
+              </p>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-3">
+              {/* Degree */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
+                <div className="flex items-center justify-between">
+                  <span className="rounded-full bg-cyan-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-cyan-700 dark:text-cyan-300">
+                    Degree
+                  </span>
+                  <span className="text-xs font-medium text-slate-400">Graduated 2024</span>
+                </div>
+                <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">
+                  Bachelor of Science in Computer Science
+                </h3>
+                <p className="mt-1 text-xs font-semibold text-cyan-600 dark:text-cyan-400">
+                  Valley View University
+                </p>
+                <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                  Comprehensive 4-year Computer Science curriculum spanning software engineering, database management systems, data structures &amp; algorithms, operating systems, and computer networks.
+                </p>
+                <div className="mt-4 border-t border-slate-100 pt-3 dark:border-slate-800">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span>✓</span> WES Evaluated Credential
+                  </span>
+                </div>
+              </div>
+
+              {/* Cisco Certification */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
+                <div className="flex items-center justify-between">
+                  <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
+                    Certification
+                  </span>
+                  <span className="text-xs font-medium text-slate-400">Verified</span>
+                </div>
+                <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">
+                  Introduction to Cybersecurity
+                </h3>
+                <p className="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                  Cisco Networking Academy
+                </p>
+                <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                  Certified foundational competencies in global threat landscapes, defense-in-depth, cryptographic confidentiality, network integrity, and defensive security controls.
+                </p>
+                <div className="mt-4 border-t border-slate-100 pt-3 dark:border-slate-800">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span>✓</span> Digital Credential Issued
+                  </span>
+                </div>
+              </div>
+
+              {/* WES Evaluation */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
+                <div className="flex items-center justify-between">
+                  <span className="rounded-full bg-indigo-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
+                    Credential Evaluation
+                  </span>
+                  <span className="text-xs font-medium text-slate-400">Official</span>
+                </div>
+                <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">
+                  World Education Services (WES)
+                </h3>
+                <p className="mt-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                  Academic Credential Evaluation
+                </p>
+                <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                  Official third-party evaluation verifying undergraduate degree equivalence and institution accreditation for United States &amp; Canadian employers and institutions.
+                </p>
+                <div className="mt-4 border-t border-slate-100 pt-3 dark:border-slate-800">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                    <span>✓</span> Authenticated Degree Equivalence
+                  </span>
+                </div>
+              </div>
+            </div>
+          </section>
+
           {/* Resume Engine Section */}
           <section id="resume" className="py-14 border-t border-slate-200 dark:border-slate-800">
             <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-700 dark:text-cyan-300">Curriculum Vitae</p>
-                <h2 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">Interactive Résumé &amp; Template Engine</h2>
+                <h2 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">Interactive Résumé &amp; Career Track Switcher</h2>
               </div>
               <button
                 type="button"
@@ -527,7 +679,7 @@ export function PortfolioShell() {
           {/* Engineering Principles Section */}
           <section id="principles" className="border-t border-slate-200 py-14 dark:border-slate-800">
             <div className="mb-8">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-700 dark:text-cyan-300">How I Work</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-700 dark:text-cyan-300">How I Build Systems</p>
               <h2 className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">Engineering principles &amp; execution</h2>
             </div>
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
@@ -545,12 +697,12 @@ export function PortfolioShell() {
           <footer id="contact" className="border-t border-slate-200 py-14 dark:border-slate-800">
             <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-700 dark:text-cyan-300">Let’s Build Together</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-700 dark:text-cyan-300">Let’s Connect</p>
                 <h2 className="mt-2 text-3xl font-extrabold text-slate-900 dark:text-white sm:text-4xl">
-                  Available for Senior Software Engineer &amp; Cloud Architect roles.
+                  Available for Software Developer, Systems, IT &amp; Cybersecurity roles.
                 </h2>
                 <p className="mt-4 max-w-lg text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-                  Have an open headcount, a distributed architecture challenge, or a platform in need of scale? Reach out directly or dispatch a message below.
+                  Have an open role, an engineering challenge, or an opportunity to discuss? Reach out directly or dispatch a message below.
                 </p>
 
                 {/* Email Pill with 1-Click Copy */}
@@ -565,7 +717,7 @@ export function PortfolioShell() {
                   <button
                     type="button"
                     onClick={handleCopyEmail}
-                    className="rounded-full border border-slate-300 bg-white px-4 py-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                    className="rounded-full border border-slate-300 bg-white px-4 py-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 cursor-pointer"
                   >
                     {copiedEmail ? '✓ Copied to Clipboard!' : '📋 Copy Email'}
                   </button>
@@ -580,26 +732,26 @@ export function PortfolioShell() {
                     GitHub &rarr;
                   </a>
                   <span>•</span>
-                  <span>United States • No Sponsorship Required</span>
+                  <span>Computer Science Graduate • Open to Opportunities</span>
                 </div>
               </div>
 
               {/* Direct Recruiter Message Form */}
               <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900/90">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Send a Quick Message</h3>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">Send a Direct Message</h3>
                 <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Direct transmission to Abeeb's inbox.</p>
 
                 {contactSent ? (
                   <div className="mt-5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-center">
                     <p className="text-sm font-bold text-emerald-400">✓ Message Dispatched Successfully!</p>
-                    <p className="mt-1 text-xs text-slate-300">Thank you for reaching out. Abeeb will respond within 24 hours.</p>
+                    <p className="mt-1 text-xs text-slate-300">Thank you for reaching out. Abeeb will respond promptly.</p>
                     <button
                       type="button"
                       onClick={() => {
                         setContactSent(false)
                         setContactMessage('')
                       }}
-                      className="mt-4 text-xs text-cyan-400 underline"
+                      className="mt-4 text-xs text-cyan-400 underline cursor-pointer"
                     >
                       Send another message
                     </button>
@@ -628,19 +780,19 @@ export function PortfolioShell() {
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">Message / Role Details</label>
+                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">Message / Opportunity Details</label>
                       <textarea
                         required
                         rows={3}
                         value={contactMessage}
                         onChange={(e) => setContactMessage(e.target.value)}
-                        placeholder="Hi Abeeb, we're hiring for a Senior Software Engineer / Cloud Architect..."
+                        placeholder="Hi Abeeb, we're interested in discussing an opportunity for a Software Developer / Systems role..."
                         className="mt-1 w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2 text-xs text-slate-900 outline-none transition focus:border-cyan-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                       />
                     </div>
                     <button
                       type="submit"
-                      className="w-full rounded-xl bg-cyan-500 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-cyan-400 shadow-md shadow-cyan-500/20"
+                      className="w-full rounded-xl bg-cyan-500 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-cyan-400 shadow-md shadow-cyan-500/20 cursor-pointer"
                     >
                       Dispatch Message &rarr;
                     </button>
@@ -650,7 +802,7 @@ export function PortfolioShell() {
             </div>
 
             <div className="mt-12 border-t border-slate-200 pt-6 text-center text-xs text-slate-400 dark:border-slate-800">
-              © 2026 Abeeb Oladipupo. Designed with React 19, TypeScript, Tailwind CSS, and Spring Boot.
+              © 2026 Abeeb Oladipupo • B.Sc. Computer Science • Software Developer | Systems &amp; Cybersecurity
             </div>
           </footer>
 

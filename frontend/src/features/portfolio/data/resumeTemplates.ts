@@ -1,10 +1,11 @@
 /**
- * Resume templates and structured profile data.
+ * Resume templates and structured profile data for Abeeb Oladipupo.
  *
- * Provides specialized presets for different target roles:
- * 1. Cloud Architect & Platform Lead: Highlights infrastructure, reliability, microservices, and metrics.
- * 2. Full-Stack Product Engineer: Highlights React, TypeScript, Vite, Spring Boot APIs, and user experience.
- * 3. Minimalist ATS Technical Lead: Optimized for ATS parsers and executive readability with dense achievement metrics.
+ * Provides 4 targeted career tracks for early-career opportunities:
+ * 1. Software Development & Backend: Core programming, Java/Spring Boot, Python, REST APIs, and Clean Architecture.
+ * 2. Systems & Cybersecurity: Cisco cybersecurity credential, Linux hardening, RBAC, JWT, network fundamentals, and threat modeling.
+ * 3. IT Infrastructure & Linux: System administration, Bash scripting, hardware/software troubleshooting, and networking.
+ * 4. Data Systems & SQL: Database modeling, PostgreSQL/MySQL, query tuning, and constraint satisfaction optimization.
  */
 
 export interface ResumeExperience {
@@ -34,7 +35,7 @@ export interface ResumeSkillCategory {
 }
 
 export interface ResumeTemplate {
-  id: 'cloud-architect' | 'full-stack' | 'minimal-ats'
+  id: 'software-developer' | 'systems-cybersecurity' | 'it-infrastructure' | 'data-sql'
   name: string
   targetRole: string
   badge: string
@@ -57,259 +58,367 @@ export interface ResumeTemplate {
 }
 
 export const resumeTemplates: Record<ResumeTemplate['id'], ResumeTemplate> = {
-  'cloud-architect': {
-    id: 'cloud-architect',
-    name: 'Cloud Solutions Architect',
-    targetRole: 'Cloud Solutions Architect & Platform Engineer',
-    badge: 'Infrastructure & Scale',
-    description: 'Emphasizes cloud-native systems, zero-downtime deployments, distributed telemetry, and reliability engineering.',
+  'software-developer': {
+    id: 'software-developer',
+    name: 'Software Development & Backend',
+    targetRole: 'Software Developer / Backend Engineer',
+    badge: 'Software & Backend',
+    description: 'Emphasizes core programming, Java & Python backend services, relational database design, and Clean Architecture.',
     accentColor: '#0284c7', // Sky / Cyan
     contact: {
       fullName: 'Abeeb Oladipupo',
       email: 'abeeboladipupo@example.com',
-      location: 'United States • Authorized to Work',
+      location: 'Available for Full-Time Roles • Relocation / Remote Ready',
       linkedin: 'https://linkedin.com/in/abeeboladipupo',
       github: 'https://github.com/abeeboladipupo',
-      website: 'https://abeeboladipupo.dev',
+      website: 'https://www.abeeboladipupo.com',
     },
     summary:
-      'Cloud Solutions Architect and Systems Engineer with extensive experience designing resilient distributed applications, containerized release pipelines, and high-throughput backend services. Specialized in Spring Boot microservices, PostgreSQL data modeling, Redis caching layers, and cloud infrastructure automation. Proven track record of architecting systems delivering 99.99% availability with automated health observability.',
+      'Computer Science graduate with strong foundations in object-oriented programming, data structures, algorithms, and backend systems. Experienced in building production-ready RESTful APIs with Java / Spring Boot and Python / Flask, architecting normalized PostgreSQL & MySQL schemas, and developing reactive frontends with TypeScript and React. Proven capability delivering complex software systems, including an AI constraint-satisfaction scheduling engine and an academic supervision platform.',
     skills: [
       {
-        category: 'Cloud & Infrastructure',
-        items: ['Docker', 'Kubernetes', 'Terraform', 'AWS / Render / Railway', 'Linux', 'GitHub Actions CI/CD'],
+        category: 'Programming Languages',
+        items: ['Java (21)', 'Python (3.x)', 'TypeScript', 'JavaScript (ES6+)', 'SQL', 'Bash / Shell'],
       },
       {
-        category: 'Backend & Data',
-        items: ['Java 21', 'Spring Boot 3', 'Spring Data JPA', 'PostgreSQL', 'Redis', 'REST APIs', 'Hibernate'],
+        category: 'Backend & Frameworks',
+        items: ['Spring Boot 3', 'Spring Data JPA', 'Flask', 'RESTful API Design', 'Hibernate / ORM', 'Maven'],
       },
       {
-        category: 'Architecture & Reliability',
-        items: ['Microservices', 'Distributed Caching', 'Zero-Downtime Rollouts', 'OpenTelemetry', 'System Security'],
+        category: 'Databases & Storage',
+        items: ['PostgreSQL', 'MySQL', 'Redis (Caching)', 'Schema Design (3NF)', 'Flyway Migrations'],
       },
       {
-        category: 'Frontend & Integrations',
-        items: ['TypeScript', 'React 19', 'Tailwind CSS', 'Vite', 'Cloudinary API'],
+        category: 'Frontend & Tools',
+        items: ['React 19', 'Tailwind CSS', 'Docker', 'Git / GitHub', 'Linux (Ubuntu/Debian)', 'Vite'],
       },
     ],
     experience: [
       {
-        role: 'Senior Cloud & Platform Engineer',
-        company: 'Independent Engineering Consulting',
-        location: 'Remote',
-        period: '2022 — Present',
+        role: 'Software Developer (Projects & Engineering)',
+        company: 'Academic & Independent Systems Development',
+        location: 'Accra / Remote',
+        period: '2023 — Present',
         highlights: [
-          'Architected containerized microservice platforms using Spring Boot and Docker, achieving sub-25ms p99 latency across core API endpoints.',
-          'Engineered a multi-tiered caching topology utilizing Spring Data Redis, increasing cache hit rates to 96.8% and reducing primary PostgreSQL read load by 60%.',
-          'Automated CI/CD deployment pipelines with zero-downtime blue/green releases and automated health verification probes.',
-          'Designed schema migration routines and resilient database connection pooling with HikariCP for fault-tolerant database operations.',
+          'Architected and implemented a multi-tenant FYP supervision platform serving students, supervisors, and department heads with role-gated workflows.',
+          'Engineered an automated course timetabling engine in Python applying Constraint Satisfaction Problem (CSP) backtracking heuristics to eliminate scheduling clashes.',
+          'Developed a Clean Architecture portfolio backend in Spring Boot 3 with OAuth2/JWT verification, Redis cache-aside, and Bucket4j rate limiting.',
+          'Designed relational database schemas with foreign keys, composite indexes, and transactional boundaries to maintain data integrity.',
         ],
       },
       {
-        role: 'Systems & Backend Engineer',
-        company: 'Portfolio Platform Services',
-        location: 'Remote',
-        period: '2020 — 2022',
+        role: 'Computer Science Department IT & Lab Assistant',
+        company: 'Valley View University',
+        location: 'Accra, Ghana',
+        period: '2022 — 2024',
         highlights: [
-          'Built RESTful APIs supporting portfolio management, content approvals, and real-time observability telemetry.',
-          'Formulated database schemas in PostgreSQL with optimized B-tree indexes and transactional isolation guarantees.',
-          'Integrated media processing workflows with Cloudinary and client-side secure upload protocols.',
-          'Authored comprehensive system architecture documentation, performance tuning guides, and deployment playbooks.',
+          'Assisted students with debugging code, algorithm design, and database queries in Java, Python, and SQL lab sessions.',
+          'Maintained department computer lab machines, installed developer toolchains, and ensured operating system and network stability.',
+          'Contributed to departmental documentation, lab manuals, and automated setup scripts for programming coursework.',
         ],
       },
     ],
     projects: [
       {
-        name: 'API Observability & Telemetry Gateway',
-        description: 'Production-grade service observability dashboard tracking Spring Boot request rates, p99 latency, and Redis cache statuses.',
-        technologies: ['Java 21', 'Spring Boot 3', 'Redis', 'PostgreSQL', 'Docker'],
+        name: 'Final Year Project (FYP) Supervision System',
+        description: 'Role-based academic research project lifecycle platform. Gated access for Students, Supervisors, and HODs, proposal approvals, document versioning, and topic similarity checks.',
+        technologies: ['Python', 'Flask', 'React', 'MySQL', 'JWT', 'RBAC'],
       },
       {
-        name: 'Cloud Infrastructure Pipeline Runner',
-        description: 'Multi-stage continuous delivery pipeline automating linting, JUnit testing, Docker builds, and cloud rollouts.',
-        technologies: ['GitHub Actions', 'Terraform', 'Docker', 'Render'],
+        name: 'AI-Powered Timetabling System (CSP Engine)',
+        description: 'Automated academic scheduling system resolving multi-constraint variables: room capacities, lecturer time slots, course conflicts, and student enrollments.',
+        technologies: ['Python', 'CSP Algorithms', 'Flask API', 'MySQL'],
+      },
+      {
+        name: 'Full-Stack Engineering & Security Platform',
+        description: 'Clean Architecture service with Spring Boot 3, PostgreSQL, Flyway, Redis cache-aside, and interactive simulation sandboxes.',
+        technologies: ['Java 21', 'Spring Boot 3', 'PostgreSQL', 'Redis', 'Docker'],
       },
     ],
     education: [
       {
         degree: 'Bachelor of Science in Computer Science',
-        institution: 'University of Technology',
-        period: '2015 — 2019',
-        details: 'Specialization in Distributed Systems, Computer Networks, and Software Architecture.',
+        institution: 'Valley View University',
+        period: 'Graduated 2024',
+        details: 'Evaluated by World Education Services (WES). Coursework: Software Engineering, Data Structures & Algorithms, Database Systems, Computer Networks, Operating Systems, Systems Analysis.',
       },
     ],
     certifications: [
-      'AWS Certified Solutions Architect (Associate)',
-      'Certified Kubernetes Application Developer (CKAD) Curriculum',
+      'Cisco: Introduction to Cybersecurity',
+      'World Education Services (WES) Verified Academic Credential',
     ],
   },
 
-  'full-stack': {
-    id: 'full-stack',
-    name: 'Full-Stack Product Engineer',
-    targetRole: 'Senior Full-Stack Product Engineer',
-    badge: 'Product & UX Velocity',
-    description: 'Balances high-performance React + TypeScript user interfaces with robust Spring Boot backend APIs.',
-    accentColor: '#0d9488', // Teal
+  'systems-cybersecurity': {
+    id: 'systems-cybersecurity',
+    name: 'Systems & Cybersecurity',
+    targetRole: 'Cybersecurity Analyst / Security Specialist / Systems Engineer',
+    badge: 'Systems & Security',
+    description: 'Highlights security-first engineering, Cisco credentials, Linux hardening, authentication (JWT/RBAC), and network security.',
+    accentColor: '#10b981', // Emerald
     contact: {
       fullName: 'Abeeb Oladipupo',
       email: 'abeeboladipupo@example.com',
-      location: 'United States • Authorized to Work',
+      location: 'Available for Full-Time Roles • Relocation / Remote Ready',
       linkedin: 'https://linkedin.com/in/abeeboladipupo',
       github: 'https://github.com/abeeboladipupo',
-      website: 'https://abeeboladipupo.dev',
+      website: 'https://www.abeeboladipupo.com',
     },
     summary:
-      'Product-minded Senior Full-Stack Engineer with a strong passion for craftsmanship, responsive user interfaces, and robust backend engineering. Proven expertise building single-page applications with React 19, TypeScript, and Tailwind CSS paired with scalable Java / Spring Boot services. Dedicated to rapid product iteration, crisp visual polish, and production reliability.',
+      'Computer Science graduate with formal training in cybersecurity principles, system security, and defensive infrastructure. Holds Cisco Introduction to Cybersecurity certification with practical experience implementing Role-Based Access Control (RBAC), OAuth2/OIDC token validation, cryptographic password hashing (bcrypt), and OWASP defensive coding. Proficient with Linux system security, firewall configuration (UFW), SSH key hardening, and network protocol analysis.',
     skills: [
       {
-        category: 'Frontend Engineering',
-        items: ['React 19', 'TypeScript', 'Vite', 'Tailwind CSS 4', 'HTML5/CSS3', 'Responsive Design', 'State Management'],
+        category: 'Security & Defensive Practices',
+        items: ['OWASP Top 10 Mitigation', 'Role-Based Access Control (RBAC)', 'JWT / OAuth2 / OIDC', 'Password Hashing (bcrypt/Argon2)', 'Input Sanitization', 'Audit Logging'],
       },
       {
-        category: 'Backend & APIs',
-        items: ['Java 21', 'Spring Boot 3', 'RESTful API Design', 'Spring Data JPA', 'PostgreSQL', 'Redis'],
+        category: 'Operating Systems & Hardening',
+        items: ['Linux (Ubuntu/Debian)', 'File Permissions & ACLs', 'SSH Key Authentication', 'UFW / iptables', 'Systemd Services', 'Process Monitoring'],
       },
       {
-        category: 'DevOps & Tooling',
-        items: ['Git', 'Docker', 'Vercel', 'Render', 'Oxlint', 'Vitest / JUnit 5'],
+        category: 'Network Fundamentals',
+        items: ['TCP/IP Model', 'DNS & TLS/SSL', 'Wireshark Packet Analysis', 'Subnetting & CIDR', 'HTTP/S Protocols', 'Nmap Scanning'],
       },
       {
-        category: 'Engineering Practices',
-        items: ['Agile / Scrum', 'Component-Driven Development', 'Code Reviews', 'Accessibility (a11y)', 'Design Systems'],
+        category: 'Software & Infrastructure',
+        items: ['Python', 'Java', 'SQL (Preventing SQLi)', 'Docker Container Isolation', 'Git', 'Bash Scripting'],
       },
     ],
     experience: [
       {
-        role: 'Senior Full-Stack Product Engineer',
-        company: 'Independent Product Engineering',
+        role: 'Systems & Security Software Projects',
+        company: 'Independent Systems & Security Labs',
         location: 'Remote',
-        period: '2022 — Present',
+        period: '2023 — Present',
         highlights: [
-          'Spearheaded end-to-end development of the portfolio platform featuring live sandboxed project demos, resume builders, and media management.',
-          'Implemented responsive component architecture adhering to modern web design standards with light/dark theme synchronization.',
-          'Built type-safe API communication layers with resilient offline fallbacks, ensuring seamless UX even under network constraints.',
-          'Constructed an interactive recruiter preview engine allowing live device breakpoint testing and cross-frame postMessage communications.',
+          'Engineered secure authentication architectures with stateless JWT tokens, HTTP-only cookie storage, and automated token expiration checks.',
+          'Configured and hardened virtual Linux servers using UFW firewalls, SSH key pairs, disabled root login, and automated log inspection.',
+          'Conducted simulated OWASP vulnerability assessments across web applications, successfully remediating SQL injection and cross-site scripting (XSS) vectors.',
+          'Built tamper-evident audit logging mechanisms tracking all privileged administrative mutations with actor identity and timestamp records.',
         ],
       },
       {
-        role: 'Full-Stack Software Engineer',
-        company: 'Digital Solutions Group',
-        location: 'Remote',
-        period: '2020 — 2022',
+        role: 'IT & Lab Systems Support',
+        company: 'Valley View University Computer Labs',
+        location: 'Accra, Ghana',
+        period: '2022 — 2024',
         highlights: [
-          'Delivered customer-facing web applications utilizing React and TypeScript, improving user engagement scores by 35%.',
-          'Constructed Spring Boot backend controllers with validation and structured error responses.',
-          'Collaborated closely with design and product teams to translate Figma wireframes into reusable, accessible design systems.',
-          'Optimized bundle size and Largest Contentful Paint (LCP) across production landing pages.',
+          'Assisted in maintaining network security policies across campus lab workstations, preventing unauthorized software installations.',
+          'Monitored local network connectivity, IP address assignments (DHCP), and DNS resolution across 40+ networked client machines.',
+          'Guided students on secure coding practices, safe credential storage, and protection against common social engineering attacks.',
         ],
       },
     ],
     projects: [
       {
-        name: 'Interactive Project Demo Sandbox',
-        description: 'Recruiter-friendly demo sandbox embedding live device viewports, signal testing, and responsive previews.',
-        technologies: ['React 19', 'TypeScript', 'Tailwind CSS', 'Vite'],
+        name: 'Secure Multi-Tenant FYP Supervision System',
+        description: 'Engineered strict Role-Based Access Control (RBAC) ensuring Students, Supervisors, and HODs only access authorized endpoints and document records.',
+        technologies: ['Python', 'Flask', 'RBAC', 'JWT', 'MySQL', 'OWASP Standards'],
       },
       {
-        name: 'Full-Stack Portfolio Platform',
-        description: 'Complete personal branding platform with admin dashboard, PostgreSQL schema, and Cloudinary upload workflow.',
-        technologies: ['React', 'TypeScript', 'Spring Boot', 'PostgreSQL', 'Redis'],
+        name: 'Clean Architecture API with Security Audit Logging',
+        description: 'Spring Boot 3 API with OIDC JWT authorization, Bucket4j IP rate limiting, and immutable audit logs capturing every state change.',
+        technologies: ['Java 21', 'Spring Security', 'OIDC', 'Audit Trail', 'PostgreSQL'],
+      },
+      {
+        name: 'Linux Security & Systems Labs',
+        description: 'Hands-on hardening lab configs: UFW rules, SSH key pairs, systemd sandboxing, permission matrix audit, and network packet capture.',
+        technologies: ['Linux', 'UFW', 'SSH', 'Wireshark', 'Bash'],
       },
     ],
     education: [
       {
         degree: 'Bachelor of Science in Computer Science',
-        institution: 'University of Technology',
-        period: '2015 — 2019',
-        details: 'Focused on Human-Computer Interaction, Web Technologies, and Data Engineering.',
+        institution: 'Valley View University',
+        period: 'Graduated 2024',
+        details: 'Evaluated by World Education Services (WES). Coursework: Computer Security, Computer Networks, Operating Systems, Cryptography Foundations.',
       },
     ],
     certifications: [
-      'Meta Frontend Developer Professional Certificate',
-      'Spring Certified Professional Foundations',
+      'Cisco: Introduction to Cybersecurity',
+      'World Education Services (WES) Verified Academic Credential',
     ],
   },
 
-  'minimal-ats': {
-    id: 'minimal-ats',
-    name: 'ATS Executive Technical Lead',
-    targetRole: 'Staff Software Engineer / Technical Lead',
-    badge: 'ATS-Optimized & Executive',
-    description: 'High-density, ATS-friendly format tailored for automated recruiter screeners and hiring committee reviews.',
-    accentColor: '#334155', // Slate
+  'it-infrastructure': {
+    id: 'it-infrastructure',
+    name: 'IT Infrastructure & Linux',
+    targetRole: 'IT Support Specialist / Systems Administrator / Infrastructure Associate',
+    badge: 'IT & Infrastructure',
+    description: 'Emphasizes hands-on hardware/software troubleshooting, Linux OS administration, Bash automation, and network support.',
+    accentColor: '#6366f1', // Indigo
     contact: {
       fullName: 'Abeeb Oladipupo',
       email: 'abeeboladipupo@example.com',
-      location: 'United States • US Work Authorization (No Sponsorship Required)',
+      location: 'Available for Full-Time Roles • Relocation / Remote Ready',
       linkedin: 'https://linkedin.com/in/abeeboladipupo',
       github: 'https://github.com/abeeboladipupo',
-      website: 'https://abeeboladipupo.dev',
+      website: 'https://www.abeeboladipupo.com',
     },
     summary:
-      'Accomplished Software Engineer and Technical Lead with 6+ years of experience spearheading distributed systems, enterprise APIs, and modern web applications. Expert in Java/Spring Boot ecosystems, TypeScript/React architectures, cloud infrastructure, and database optimization. Experienced in leading architectural decisions, mentoring engineers, and executing roadmap milestones with high velocity and operational excellence.',
+      'Computer Science graduate with practical experience in IT support, computer lab administration, Linux system configuration, and network troubleshooting. Skilled in resolving operating system errors, setting up local area networks (LANs), configuring user accounts and file permissions, and automating routine administrative tasks with Bash scripts. Patient communicator dedicated to minimizing user downtime and maintaining dependable IT infrastructure.',
     skills: [
       {
-        category: 'Core Technologies',
-        items: ['Java 21', 'Spring Boot', 'TypeScript', 'React', 'PostgreSQL', 'Redis', 'Docker', 'Kubernetes'],
+        category: 'Operating Systems & Administration',
+        items: ['Linux (Ubuntu, Debian)', 'Windows 10 / 11 / Server Basics', 'User & Group Management', 'Package Management (apt)', 'Systemd & Cron'],
       },
       {
-        category: 'Architecture & Practices',
-        items: ['Distributed Systems', 'System Design', 'Domain-Driven Design (DDD)', 'CI/CD Pipelines', 'TDD', 'Agile Leadership'],
+        category: 'Networking & Hardware',
+        items: ['LAN Setup & Cabling', 'TCP/IP, DHCP & DNS Configuration', 'Router & Switch Basics', 'Hardware Diagnostics & Repair', 'Peripherals Support'],
       },
       {
-        category: 'Cloud & Infrastructure',
-        items: ['Terraform', 'AWS', 'Linux Administration', 'Container Orchestration', 'Microservices Security', 'HikariCP'],
+        category: 'Scripting & Automation',
+        items: ['Bash Shell Scripting', 'Python Automation', 'Git Version Control', 'Automated Backups', 'Environment Setup Scripts'],
+      },
+      {
+        category: 'Support & Collaboration',
+        items: ['Technical Troubleshooting', 'Help Desk / Ticketing Workflows', 'User Training & Documentation', 'Remote Desktop Support'],
       },
     ],
     experience: [
       {
-        role: 'Technical Lead & Senior Software Engineer',
-        company: 'Enterprise Product Systems',
-        location: 'Remote',
-        period: '2022 — Present',
+        role: 'Computer Systems & IT Lab Assistant',
+        company: 'Valley View University Computer Science Department',
+        location: 'Accra, Ghana',
+        period: '2022 — 2024',
         highlights: [
-          'Led technical design and delivery of mission-critical platform services supporting high-concurrency client workloads.',
-          'Reduced p95 API response times from 180ms to 24ms through aggressive query indexing, Redis caching, and async processing.',
-          'Instituted automated static code analysis, code review standards, and comprehensive JUnit/integration testing suites.',
-          'Mentored junior and mid-level engineers in distributed system patterns, clean architecture, and modern TypeScript.',
+          'Provided front-line technical support for 150+ students and faculty members across departmental computer laboratories.',
+          'Diagnosed and resolved hardware issues (RAM faults, storage drives, power supplies) and software configuration errors.',
+          'Configured static and DHCP network interfaces, verified default gateway routing, and resolved DNS resolution problems.',
+          'Wrote Bash automation scripts to reset lab machine states, clean temporary directories, and verify network connectivity before classes.',
         ],
       },
       {
-        role: 'Software Engineer',
-        company: 'Cloud Application Services',
+        role: 'Independent Systems & Infrastructure Projects',
+        company: 'Self-Directed Engineering Labs',
         location: 'Remote',
-        period: '2019 — 2022',
+        period: '2023 — Present',
         highlights: [
-          'Implemented Spring Data JPA persistence layers and database migrations for high-availability transactional datasets.',
-          'Developed responsive React administrative dashboards with secure authentication workflows.',
-          'Reduced CI/CD build and deploy cycle times by 45% using Docker layer caching and optimized Gradle/Maven workflows.',
+          'Configured Linux virtual machines hosting web applications, database instances, and reverse proxy servers.',
+          'Implemented automated scheduled database backups using cron jobs and shell scripts with compression and retention policies.',
+          'Configured Docker containers to isolate development environments and maintain reproducible service execution.',
         ],
       },
     ],
     projects: [
       {
-        name: 'Distributed Platform Telemetry Engine',
-        description: 'Scalable observability engine capturing microservice metrics and transaction traces in real time.',
-        technologies: ['Java', 'Spring Boot', 'Redis', 'PostgreSQL'],
+        name: 'Automated Lab Maintenance & Health Check Scripts',
+        description: 'Suite of Bash scripts checking disk usage, memory pressure, network gateway availability, and reporting alerts.',
+        technologies: ['Bash', 'Linux', 'Cron', 'Systemd'],
       },
       {
-        name: 'Portfolio Platform Architecture',
-        description: 'Full-stack platform demonstrating clean separation of concerns, containerized builds, and zero-cost cloud deployment.',
-        technologies: ['React 19', 'TypeScript', 'Java 21', 'Spring Boot 3'],
+        name: 'Multi-Service Containerized Environment',
+        description: 'Docker Compose configuration running application servers, PostgreSQL databases, and Redis caching with isolated networks.',
+        technologies: ['Docker', 'Linux', 'Networking', 'PostgreSQL'],
+      },
+      {
+        name: 'Academic Supervision & Scheduling Systems Support',
+        description: 'Managed local database installations, environment variables, and client-server connectivity for university projects.',
+        technologies: ['MySQL', 'Python', 'Linux', 'Apache/Nginx'],
       },
     ],
     education: [
       {
         degree: 'Bachelor of Science in Computer Science',
-        institution: 'University of Technology',
-        period: '2015 — 2019',
-        details: 'Graduated with honors. Coursework: Algorithms, Database Management, Operating Systems.',
+        institution: 'Valley View University',
+        period: 'Graduated 2024',
+        details: 'Evaluated by World Education Services (WES). Coursework: Computer Architecture, Operating Systems, Computer Networks, Systems Administration Foundations.',
       },
     ],
     certifications: [
-      'AWS Certified Solutions Architect',
-      'Professional Scrum Master (PSM I)',
+      'Cisco: Introduction to Cybersecurity',
+      'World Education Services (WES) Verified Academic Credential',
+    ],
+  },
+
+  'data-sql': {
+    id: 'data-sql',
+    name: 'Data Systems & SQL',
+    targetRole: 'Database Developer / Data Analyst / SQL Specialist',
+    badge: 'Data & SQL Systems',
+    description: 'Emphasizes relational schema design (3NF), complex SQL queries, index optimization, and algorithm-driven constraint solving.',
+    accentColor: '#f59e0b', // Amber
+    contact: {
+      fullName: 'Abeeb Oladipupo',
+      email: 'abeeboladipupo@example.com',
+      location: 'Available for Full-Time Roles • Relocation / Remote Ready',
+      linkedin: 'https://linkedin.com/in/abeeboladipupo',
+      github: 'https://github.com/abeeboladipupo',
+      website: 'https://www.abeeboladipupo.com',
+    },
+    summary:
+      'Computer Science graduate with deep focus on relational database design, SQL query engineering, data integrity, and constraint-satisfaction algorithms. Proficient in PostgreSQL and MySQL, schema normalization (3NF), indexing strategies, transactional isolation (ACID), and Flyway database migrations. Experienced in modeling complex real-world data systems, including university timetable scheduling constraints and multi-entity academic workflows.',
+    skills: [
+      {
+        category: 'Databases & Querying',
+        items: ['PostgreSQL', 'MySQL', 'Advanced SQL (Joins, Aggregations, CTEs, Window Functions)', 'Schema Normalization (1NF to 3NF)', 'Query Indexing & EXPLAIN'],
+      },
+      {
+        category: 'Data Integrity & Architecture',
+        items: ['ACID Transactions', 'Foreign Key Constraints', 'Cascade Rules', 'Flyway Migrations', 'Redis Cache-Aside Patterns'],
+      },
+      {
+        category: 'Algorithms & Modeling',
+        items: ['Constraint Satisfaction Problems (CSP)', 'Backtracking Heuristics', 'Relational Entity-Relationship Modeling (ERD)', 'Data Cleansing & Validation'],
+      },
+      {
+        category: 'Programming & Analysis',
+        items: ['Python (Pandas basics)', 'Java (Spring Data JPA / Hibernate)', 'CSV / JSON Data Pipelines', 'REST Data APIs'],
+      },
+    ],
+    experience: [
+      {
+        role: 'Data & Database Systems Developer',
+        company: 'Academic & Applied Data Projects',
+        location: 'Remote',
+        period: '2023 — Present',
+        highlights: [
+          'Engineered a multi-table normalized relational database for an AI timetabling system modeling courses, lecturers, room capacities, and time slots.',
+          'Formulated complex SQL queries with multiple JOINs, group-by aggregations, and subqueries to detect timetable clashes and capacity bottlenecks.',
+          'Authored Flyway database migration scripts ensuring repeatable schema versioning across development and production environments.',
+          'Implemented Redis caching on high-frequency read queries to protect PostgreSQL connection budgets and reduce query response times.',
+        ],
+      },
+      {
+        role: 'Computer Science Department IT & Lab Assistant',
+        company: 'Valley View University',
+        location: 'Accra, Ghana',
+        period: '2022 — 2024',
+        highlights: [
+          'Assisted students with understanding relational database theory, writing SQL queries, and designing ER diagrams.',
+          'Assisted with database server installation and user permissions management for MySQL databases used in class projects.',
+          'Reviewed student queries to help identify Cartesian products, unindexed table scans, and syntax errors.',
+        ],
+      },
+    ],
+    projects: [
+      {
+        name: 'AI Timetabling Constraint Engine & Database',
+        description: 'Relational data model backing an automated scheduling algorithm. Validated room capacities, lecturer schedules, and enrollment clashes.',
+        technologies: ['MySQL', 'SQL Optimization', 'Python', 'CSP Algorithms'],
+      },
+      {
+        name: 'FYP Academic Supervision Relational Schema',
+        description: 'Multi-entity schema with strict foreign key constraints, cascading policies, and status tracking for students, supervisors, and topic submissions.',
+        technologies: ['MySQL', 'PostgreSQL', 'ER Modeling', 'Flask API'],
+      },
+      {
+        name: 'Portfolio Platform Flyway Migration & Audit Schema',
+        description: 'Versioned database migration suite (V1__init.sql) comprising 12 tables, pgcrypto UUIDs, audit logging, and soft-delete queries.',
+        technologies: ['PostgreSQL', 'Flyway', 'Spring Data JPA', 'Redis'],
+      },
+    ],
+    education: [
+      {
+        degree: 'Bachelor of Science in Computer Science',
+        institution: 'Valley View University',
+        period: 'Graduated 2024',
+        details: 'Evaluated by World Education Services (WES). Coursework: Database Management Systems, Advanced SQL, Data Structures & Algorithms, Discrete Mathematics, Systems Analysis.',
+      },
+    ],
+    certifications: [
+      'Cisco: Introduction to Cybersecurity',
+      'World Education Services (WES) Verified Academic Credential',
     ],
   },
 }
