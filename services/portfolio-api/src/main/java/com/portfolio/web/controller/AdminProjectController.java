@@ -31,6 +31,13 @@ public class AdminProjectController {
         this.actorResolver = actorResolver;
     }
 
+    @GetMapping
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_EDITOR', 'ROLE_ADMIN', 'ROLE_EDITOR')")
+    @Operation(summary = "List all projects including drafts", operationId = "listAdminProjects")
+    public ResponseEntity<java.util.List<Project>> listAdminProjects() {
+        return ResponseEntity.ok(projectService.listAdminProjects());
+    }
+
     @PostMapping
     @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'SCOPE_EDITOR', 'ROLE_ADMIN', 'ROLE_EDITOR')")
     @Operation(summary = "Create a new project", operationId = "createProject")
@@ -53,5 +60,15 @@ public class AdminProjectController {
         String requestId = request.getHeader("X-Request-Id");
         Project updated = projectService.updateProject(id, req, actorId, requestId);
         return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'ROLE_ADMIN')")
+    @Operation(summary = "Soft delete project", operationId = "deleteProject")
+    public ResponseEntity<Void> deleteProject(@PathVariable UUID id, HttpServletRequest request) {
+        UUID actorId = actorResolver.resolveActorId();
+        String requestId = request.getHeader("X-Request-Id");
+        projectService.softDeleteProject(id, actorId, requestId);
+        return ResponseEntity.noContent().build();
     }
 }

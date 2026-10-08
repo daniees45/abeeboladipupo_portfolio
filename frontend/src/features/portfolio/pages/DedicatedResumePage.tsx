@@ -5,9 +5,11 @@
 
 import { ResumeModule } from '../components/ResumeModule'
 import { useRouter } from '../../../lib/router'
+import { useSiteSettings } from '../hooks/useSiteSettings'
 
 export function DedicatedResumePage() {
   const { navigate } = useRouter()
+  const { settings } = useSiteSettings()
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50">
@@ -20,14 +22,14 @@ export function DedicatedResumePage() {
               onClick={() => navigate('/')}
               className="flex h-9 w-9 items-center justify-center rounded-full bg-cyan-500/15 text-sm font-semibold text-cyan-600 dark:text-cyan-300"
             >
-              A
+              AO
             </button>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-700 dark:text-slate-200">
-                Abeoladipupo
+                {settings.fullName || 'Abeeb Oladipupo'}
               </p>
               <p className="text-[11px] text-cyan-600 dark:text-cyan-400">
-                Dedicated Résumé View
+                {settings.professionalTitle || 'Software Developer | Systems & Cybersecurity'}
               </p>
             </div>
           </div>

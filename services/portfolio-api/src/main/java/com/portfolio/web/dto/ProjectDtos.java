@@ -40,7 +40,13 @@ public class ProjectDtos {
         Boolean featured,
 
         @Min(0)
-        Integer displayOrder
+        Integer displayOrder,
+
+        String problem,
+        String solution,
+        String architectureFlow,
+        String keyFeatures,
+        String technologies
     ) {}
 
     public record ProjectUpdate(
@@ -73,7 +79,13 @@ public class ProjectDtos {
         Integer displayOrder,
 
         @NotNull @Min(0)
-        Integer version
+        Integer version,
+
+        String problem,
+        String solution,
+        String architectureFlow,
+        String keyFeatures,
+        String technologies
     ) {}
 
     public record Project(
@@ -89,6 +101,12 @@ public class ProjectDtos {
         boolean featured,
         int displayOrder,
         int version,
+        String problem,
+        String solution,
+        String architectureFlow,
+        String keyFeatures,
+        String technologies,
+        List<String> stack,
         Instant updatedAt
     ) {}
 

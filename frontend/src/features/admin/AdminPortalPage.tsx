@@ -2,23 +2,40 @@
  * Dedicated Secret Admin Portal Page.
  *
  * This page is accessible ONLY via the private URL path (e.g. /portal-admin-abeeb)
- * and is protected by a session-level security key gate.
+ * and is protected by a session-level security key gate with signed JWT authorization.
  *
- * It houses all administration modules:
- * 1. Operations Overview (AdminManagementPanel)
- * 2. Project Creation & Publishing (ProjectManagementPanel)
- * 3. Media Asset Management & Cloudinary Setup (PhotoUploadPanel)
+ * It houses all administration modules backed by PostgreSQL:
+ * 1. Operations Overview & System Audit Trail
+ * 2. Project Creation & Case Study CMS
+ * 3. Site Settings & Bio Positioning
+ * 4. Education & Industry Certifications
+ * 5. Official Résumé Version Management & Downloads
+ * 6. Recruiter Inquiries & Contact Submissions Inbox
+ * 7. Media Asset Management & Cloudinary Setup
  */
 
 import { useState, type FormEvent } from 'react'
 import { AdminManagementPanel } from '../portfolio/components/AdminManagementPanel'
 import { PhotoUploadPanel } from '../portfolio/components/PhotoUploadPanel'
 import { ProjectManagementPanel } from '../portfolio/components/ProjectManagementPanel'
+import { AdminSettingsPanel } from '../portfolio/components/AdminSettingsPanel'
+import { AdminCredentialsPanel } from '../portfolio/components/AdminCredentialsPanel'
+import { AdminResumePanel } from '../portfolio/components/AdminResumePanel'
+import { AdminMessagesPanel } from '../portfolio/components/AdminMessagesPanel'
+import { AdminAuditLogsPanel } from '../portfolio/components/AdminAuditLogsPanel'
 import { usePortfolioProjects } from '../portfolio/hooks/usePortfolioProjects'
 import { usePortfolioMetrics } from '../portfolio/hooks/usePortfolioMetrics'
+import { adminLogin } from '../portfolio/api/portfolioApi'
 import { ADMIN_SECRET_KEY, useRouter } from '../../lib/router'
 
-type AdminTab = 'operations' | 'projects' | 'media'
+type AdminTab =
+  | 'operations'
+  | 'projects'
+  | 'settings'
+  | 'credentials'
+  | 'resumes'
+  | 'messages'
+  | 'media'
 
 export function AdminPortalPage() {
   const { navigate } = useRouter()
@@ -32,22 +49,40 @@ export function AdminPortalPage() {
   })
 
   const [enteredKey, setEnteredKey] = useState('')
+  const [authLoading, setAuthLoading] = useState(false)
   const [authError, setAuthError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<AdminTab>('operations')
 
-  const handleAuthenticate = (e: FormEvent) => {
+  const handleAuthenticate = async (e: FormEvent) => {
     e.preventDefault()
-    if (enteredKey.trim() === ADMIN_SECRET_KEY) {
+    setAuthLoading(true)
+    setAuthError(null)
+
+    try {
+      // Attempt real authentication against Spring Boot REST API
+      await adminLogin(enteredKey.trim())
       window.sessionStorage.setItem('admin_session_auth', 'true')
+      window.sessionStorage.setItem('admin_access_key', enteredKey.trim())
       setIsAuthenticated(true)
-      setAuthError(null)
-    } else {
-      setAuthError('Invalid administrator access key. Access denied.')
+    } catch {
+      // Offline fallback: verify against client-configured secret key
+      if (enteredKey.trim() === ADMIN_SECRET_KEY) {
+        window.sessionStorage.setItem('admin_session_auth', 'true')
+        window.sessionStorage.setItem('admin_access_key', enteredKey.trim())
+        setIsAuthenticated(true)
+        setAuthError(null)
+      } else {
+        setAuthError('Invalid administrator access key. Access denied.')
+      }
+    } finally {
+      setAuthLoading(false)
     }
   }
 
   const handleLogout = () => {
     window.sessionStorage.removeItem('admin_session_auth')
+    window.sessionStorage.removeItem('admin_auth_token')
+    window.sessionStorage.removeItem('admin_access_key')
     setIsAuthenticated(false)
     setEnteredKey('')
   }
@@ -96,9 +131,10 @@ export function AdminPortalPage() {
 
             <button
               type="submit"
-              className="w-full rounded-xl bg-cyan-500 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400"
+              disabled={authLoading}
+              className="w-full rounded-xl bg-cyan-500 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-400 disabled:opacity-50 cursor-pointer"
             >
-              Unlock Admin Console
+              {authLoading ? 'Verifying with Backend...' : 'Unlock Admin Console'}
             </button>
           </form>
 
@@ -106,7 +142,7 @@ export function AdminPortalPage() {
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="text-xs text-slate-400 transition hover:text-white"
+              className="text-xs text-slate-400 transition hover:text-white cursor-pointer"
             >
               &larr; Return to Public Portfolio
             </button>
@@ -132,26 +168,26 @@ export function AdminPortalPage() {
               </h1>
               <p className="text-[11px] text-emerald-400 flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Private Session Active • Secret Route
+                Database-Driven Session Active • Clean Architecture
               </p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <span className="rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs text-slate-300">
-              Backend: {isOfflineFallback ? 'Offline Fallback' : 'Connected'}
+              Backend: {isOfflineFallback ? 'Offline Fallback' : 'Connected (PostgreSQL)'}
             </span>
             <button
               type="button"
               onClick={() => navigate('/')}
-              className="rounded-full border border-slate-700 bg-slate-900 px-3.5 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-500 hover:text-white"
+              className="rounded-full border border-slate-700 bg-slate-900 px-3.5 py-1.5 text-xs font-medium text-slate-200 transition hover:border-slate-500 hover:text-white cursor-pointer"
             >
               Public Portfolio &nearr;
             </button>
             <button
               type="button"
               onClick={handleLogout}
-              className="rounded-full bg-rose-500/15 border border-rose-500/30 px-3.5 py-1.5 text-xs font-semibold text-rose-300 transition hover:bg-rose-500/25"
+              className="rounded-full bg-rose-500/15 border border-rose-500/30 px-3.5 py-1.5 text-xs font-semibold text-rose-300 transition hover:bg-rose-500/25 cursor-pointer"
             >
               Lock &amp; Exit
             </button>
@@ -166,39 +202,83 @@ export function AdminPortalPage() {
           <button
             type="button"
             onClick={() => setActiveTab('operations')}
-            className={`rounded-xl px-4 py-2 text-xs font-semibold uppercase tracking-wider transition sm:text-sm ${
+            className={`rounded-xl px-4 py-2 text-xs font-semibold uppercase tracking-wider transition ${
               activeTab === 'operations'
                 ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
                 : 'bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800'
             }`}
           >
-            📊 Operations &amp; Health
+            📊 Operations &amp; Audit
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('projects')}
-            className={`rounded-xl px-4 py-2 text-xs font-semibold uppercase tracking-wider transition sm:text-sm ${
+            className={`rounded-xl px-4 py-2 text-xs font-semibold uppercase tracking-wider transition ${
               activeTab === 'projects'
                 ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
                 : 'bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800'
             }`}
           >
-            🚀 Project Management
+            🚀 Projects CMS
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('settings')}
+            className={`rounded-xl px-4 py-2 text-xs font-semibold uppercase tracking-wider transition ${
+              activeTab === 'settings'
+                ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
+                : 'bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            ⚙️ Profile &amp; Settings
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('credentials')}
+            className={`rounded-xl px-4 py-2 text-xs font-semibold uppercase tracking-wider transition ${
+              activeTab === 'credentials'
+                ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
+                : 'bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            🎓 Credentials &amp; Degrees
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('resumes')}
+            className={`rounded-xl px-4 py-2 text-xs font-semibold uppercase tracking-wider transition ${
+              activeTab === 'resumes'
+                ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
+                : 'bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            📄 Résumé Manager
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('messages')}
+            className={`rounded-xl px-4 py-2 text-xs font-semibold uppercase tracking-wider transition ${
+              activeTab === 'messages'
+                ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
+                : 'bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            📬 Inquiries Inbox
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('media')}
-            className={`rounded-xl px-4 py-2 text-xs font-semibold uppercase tracking-wider transition sm:text-sm ${
+            className={`rounded-xl px-4 py-2 text-xs font-semibold uppercase tracking-wider transition ${
               activeTab === 'media'
                 ? 'bg-cyan-500 text-slate-950 shadow-md shadow-cyan-500/20'
                 : 'bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800'
             }`}
           >
-            🖼️ Media &amp; Cloudinary
+            🖼️ Media
           </button>
         </div>
 
-        {/* Tab 1: Operations Overview */}
+        {/* Tab 1: Operations Overview & Audit */}
         {activeTab === 'operations' && (
           <div className="space-y-6">
             <div className="grid gap-4 sm:grid-cols-3">
@@ -220,20 +300,49 @@ export function AdminPortalPage() {
             </div>
 
             <AdminManagementPanel />
+            <AdminAuditLogsPanel />
           </div>
         )}
 
-        {/* Tab 2: Project Management Form & Drafts */}
+        {/* Tab 2: Project Management CMS */}
         {activeTab === 'projects' && (
           <div className="space-y-6">
             <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/5 p-4 text-xs text-cyan-300">
-              💡 Projects added here immediately synchronize with the portfolio dataset and live preview sandbox.
+              💡 Projects created here are committed to PostgreSQL and immediately appear in the portfolio showcase and live preview sandbox.
             </div>
             <ProjectManagementPanel onProjectAdded={addProject} />
           </div>
         )}
 
-        {/* Tab 3: Media Upload & Cloudinary Setup */}
+        {/* Tab 3: Site Profile & Settings */}
+        {activeTab === 'settings' && (
+          <div className="space-y-6">
+            <AdminSettingsPanel />
+          </div>
+        )}
+
+        {/* Tab 4: Credentials & Degrees */}
+        {activeTab === 'credentials' && (
+          <div className="space-y-6">
+            <AdminCredentialsPanel />
+          </div>
+        )}
+
+        {/* Tab 5: Resume Manager */}
+        {activeTab === 'resumes' && (
+          <div className="space-y-6">
+            <AdminResumePanel />
+          </div>
+        )}
+
+        {/* Tab 6: Recruiter Inquiries Inbox */}
+        {activeTab === 'messages' && (
+          <div className="space-y-6">
+            <AdminMessagesPanel />
+          </div>
+        )}
+
+        {/* Tab 7: Media Upload */}
         {activeTab === 'media' && (
           <div className="space-y-6">
             <PhotoUploadPanel />

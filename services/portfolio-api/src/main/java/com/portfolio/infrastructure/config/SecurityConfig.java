@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -13,8 +12,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -31,30 +33,44 @@ public class SecurityConfig {
     @Value("${app.cors.allowed-origins:https://www.abeeboladipupo.com,https://abeeboladipupo.com,http://localhost:3000,http://localhost:5173}")
     private List<String> allowedOrigins;
 
+    private final AdminTokenAuthenticationFilter adminTokenFilter;
+
+    public SecurityConfig(AdminTokenAuthenticationFilter adminTokenFilter) {
+        this.adminTokenFilter = adminTokenFilter;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .csrf(csrf -> csrf.disable()) // Stateless REST API using Bearer JWT
+            .csrf(csrf -> csrf.disable()) // Stateless REST API
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(adminTokenFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
-                // Public read & contact endpoints
+                // Public settings, content & credentials
+                .requestMatchers(HttpMethod.GET, "/api/v1/settings").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/projects/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/experience").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/education").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/certifications").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/skills").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/resume/active").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/resume/download/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/metrics").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/posts/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/products/**").permitAll()
+
+                // Public contact submission & auth
                 .requestMatchers(HttpMethod.POST, "/api/v1/contact-messages").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/auth/me").authenticated()
 
                 // Health & OpenAPI
                 .requestMatchers("/actuator/health", "/actuator/info").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
 
-                // Admin endpoints with RBAC (ADR-002)
-                .requestMatchers(HttpMethod.POST, "/api/v1/admin/projects").hasAnyAuthority("SCOPE_ADMIN", "SCOPE_EDITOR", "ROLE_ADMIN", "ROLE_EDITOR")
-                .requestMatchers(HttpMethod.PUT, "/api/v1/admin/projects/**").hasAnyAuthority("SCOPE_ADMIN", "SCOPE_EDITOR", "ROLE_ADMIN", "ROLE_EDITOR")
-                .requestMatchers("/api/v1/admin/products/**").hasAnyAuthority("SCOPE_ADMIN", "ROLE_ADMIN")
-                .requestMatchers("/api/v1/admin/**").hasAnyAuthority("SCOPE_ADMIN", "ROLE_ADMIN")
+                // Admin endpoints protected by RBAC
+                .requestMatchers("/api/v1/admin/**").hasAnyAuthority("SCOPE_ADMIN", "ROLE_ADMIN", "ADMIN")
 
                 .anyRequest().authenticated()
             )
@@ -63,6 +79,25 @@ public class SecurityConfig {
             );
 
         return http.build();
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        return token -> {
+            try {
+                com.nimbusds.jwt.SignedJWT signedJWT = com.nimbusds.jwt.SignedJWT.parse(token);
+                var claims = signedJWT.getJWTClaimsSet();
+                return Jwt.withTokenValue(token)
+                    .header("alg", "HS256")
+                    .subject(claims.getSubject())
+                    .claims(c -> c.putAll(claims.getClaims()))
+                    .issuedAt(claims.getIssueTime() != null ? claims.getIssueTime().toInstant() : java.time.Instant.now())
+                    .expiresAt(claims.getExpirationTime() != null ? claims.getExpirationTime().toInstant() : java.time.Instant.now().plusSeconds(86400))
+                    .build();
+            } catch (Exception e) {
+                throw new JwtException("Token parsing error", e);
+            }
+        };
     }
 
     @Bean
@@ -87,23 +122,19 @@ public class SecurityConfig {
             public Collection<GrantedAuthority> convert(Jwt jwt) {
                 Collection<GrantedAuthority> authorities = new ArrayList<>();
 
-                // 1. Check standard 'scope' or 'scp' claim
                 Object scopes = jwt.getClaims().get("scope");
                 if (scopes instanceof String s) {
                     for (String scope : s.split(" ")) {
                         authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
+                        authorities.add(new SimpleGrantedAuthority("ROLE_" + scope));
                     }
                 }
 
-                // 2. Check Auth0 custom roles claim (e.g. 'https://abeeboladipupo.com/roles' or 'roles')
                 List<?> roles = jwt.getClaimAsStringList("roles");
-                if (roles == null) {
-                    roles = jwt.getClaimAsStringList("https://www.abeeboladipupo.com/roles");
-                }
                 if (roles != null) {
                     for (Object role : roles) {
-                        authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toString()));
-                        authorities.add(new SimpleGrantedAuthority("SCOPE_" + role.toString()));
+                        String r = String.valueOf(role);
+                        authorities.add(new SimpleGrantedAuthority("ROLE_" + r.replaceFirst("^ROLE_", "")));
                     }
                 }
 

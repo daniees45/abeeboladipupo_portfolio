@@ -44,6 +44,21 @@ public class ProjectJpaEntity {
     @Column(name = "display_order", nullable = false)
     private int displayOrder = 0;
 
+    @Column(columnDefinition = "text")
+    private String problem;
+
+    @Column(columnDefinition = "text")
+    private String solution;
+
+    @Column(name = "architecture_flow", length = 500)
+    private String architectureFlow;
+
+    @Column(name = "key_features", columnDefinition = "text")
+    private String keyFeatures;
+
+    @Column(length = 500)
+    private String technologies;
+
     @Version
     private int version;
 
@@ -122,6 +137,21 @@ public class ProjectJpaEntity {
 
     public UUID getUpdatedBy() { return updatedBy; }
     public void setUpdatedBy(UUID updatedBy) { this.updatedBy = updatedBy; }
+
+    public String getProblem() { return problem; }
+    public void setProblem(String problem) { this.problem = problem; }
+
+    public String getSolution() { return solution; }
+    public void setSolution(String solution) { this.solution = solution; }
+
+    public String getArchitectureFlow() { return architectureFlow; }
+    public void setArchitectureFlow(String architectureFlow) { this.architectureFlow = architectureFlow; }
+
+    public String getKeyFeatures() { return keyFeatures; }
+    public void setKeyFeatures(String keyFeatures) { this.keyFeatures = keyFeatures; }
+
+    public String getTechnologies() { return technologies; }
+    public void setTechnologies(String technologies) { this.technologies = technologies; }
 
     public Instant getDeletedAt() { return deletedAt; }
     public void setDeletedAt(Instant deletedAt) { this.deletedAt = deletedAt; }

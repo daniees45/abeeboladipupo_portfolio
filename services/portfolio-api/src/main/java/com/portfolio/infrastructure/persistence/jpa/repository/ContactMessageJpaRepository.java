@@ -18,6 +18,8 @@ public interface ContactMessageJpaRepository extends JpaRepository<ContactMessag
 
     Page<ContactMessageJpaEntity> findAllByOrderByCreatedAtDesc(Pageable pageable);
 
+    java.util.List<ContactMessageJpaEntity> findAllByOrderByCreatedAtDesc();
+
     @Modifying
     @Query("DELETE FROM ContactMessageJpaEntity c WHERE c.status IN :statuses AND c.resolvedAt < :cutoff")
     int deleteByStatusInAndResolvedAtBefore(

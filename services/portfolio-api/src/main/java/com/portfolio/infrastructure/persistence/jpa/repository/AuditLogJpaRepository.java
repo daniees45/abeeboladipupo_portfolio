@@ -14,4 +14,6 @@ public interface AuditLogJpaRepository extends JpaRepository<AuditLogJpaEntity, 
     Page<AuditLogJpaEntity> findByEntityTypeAndEntityIdOrderByOccurredAtDesc(String entityType, UUID entityId, Pageable pageable);
 
     Page<AuditLogJpaEntity> findByActorIdOrderByOccurredAtDesc(UUID actorId, Pageable pageable);
+
+    java.util.List<AuditLogJpaEntity> findTop50ByOrderByOccurredAtDesc();
 }

@@ -20,7 +20,11 @@ public class SecurityActorResolver {
 
     public UUID resolveActorId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getPrincipal() instanceof Jwt jwt) {
+        if (auth == null) {
+            return null;
+        }
+
+        if (auth.getPrincipal() instanceof Jwt jwt) {
             String subject = jwt.getSubject();
             if (subject != null) {
                 return appUserRepository.findBySubject(subject)
@@ -35,6 +39,10 @@ public class SecurityActorResolver {
                         return null;
                     });
             }
+        } else if (auth.getName() != null) {
+            return appUserRepository.findBySubject(auth.getName())
+                .map(AppUserJpaEntity::getId)
+                .orElse(null);
         }
         return null;
     }

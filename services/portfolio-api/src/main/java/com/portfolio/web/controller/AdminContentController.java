@@ -21,9 +21,23 @@ public class AdminContentController {
     private final ContentService contentService;
     private final SecurityActorResolver actorResolver;
 
-    public AdminContentController(ContentService contentService, SecurityActorResolver actorResolver) {
+    private final com.portfolio.infrastructure.persistence.jpa.repository.AuditLogJpaRepository auditLogRepository;
+
+    public AdminContentController(
+        ContentService contentService,
+        SecurityActorResolver actorResolver,
+        com.portfolio.infrastructure.persistence.jpa.repository.AuditLogJpaRepository auditLogRepository
+    ) {
         this.contentService = contentService;
         this.actorResolver = actorResolver;
+        this.auditLogRepository = auditLogRepository;
+    }
+
+    @GetMapping("/audit-logs")
+    @PreAuthorize("hasAnyAuthority('SCOPE_ADMIN', 'ROLE_ADMIN')")
+    @Operation(summary = "Get recent audit logs", operationId = "getAuditLogs")
+    public ResponseEntity<java.util.List<com.portfolio.infrastructure.persistence.jpa.entity.AuditLogJpaEntity>> getAuditLogs() {
+        return ResponseEntity.ok(auditLogRepository.findTop50ByOrderByOccurredAtDesc());
     }
 
     @DeleteMapping("/{resource}/{id}")

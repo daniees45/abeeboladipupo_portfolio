@@ -11,9 +11,11 @@
 import { useState } from 'react'
 import { resumeTemplates, type ResumeTemplate } from '../data/resumeTemplates'
 import { exportResumeAsDoc, exportResumeAsMarkdown, printResumeTemplate } from '../utils/resumeExport'
+import { useActiveResume } from '../hooks/useActiveResume'
 
 export function ResumeModule() {
   const [selectedTemplateId, setSelectedTemplateId] = useState<ResumeTemplate['id']>('software-developer')
+  const { activeResume } = useActiveResume()
 
   const activeTemplate = resumeTemplates[selectedTemplateId]
 
@@ -34,12 +36,26 @@ export function ResumeModule() {
             Professional Profile &amp; Résumé
           </h2>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Select a specialized career track below. Downloads dynamically generate with that template's content and styling.
+            Select a specialized career track below or download the official published version verified in PostgreSQL.
           </p>
         </div>
 
         {/* Action Download Buttons */}
         <div className="flex flex-wrap items-center gap-2">
+          {activeResume?.downloadUrl && (
+            <a
+              href={activeResume.downloadUrl}
+              download={activeResume.fileName}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-emerald-500 shadow-sm shadow-emerald-600/20 sm:text-sm"
+              title={`Download official published resume file (${activeResume.versionTag}) directly from portfolio database`}
+            >
+              <span>📥</span>
+              <span>Official PDF ({activeResume.versionTag})</span>
+            </a>
+          )}
+
           <button
             type="button"
             onClick={() => exportResumeAsDoc(activeTemplate)}

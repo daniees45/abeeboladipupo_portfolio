@@ -90,6 +90,13 @@ public class ProjectService {
         return dto;
     }
 
+    public List<Project> listAdminProjects() {
+        return projectRepository.findAllByDeletedAtIsNullOrderByDisplayOrderAsc()
+            .stream()
+            .map(this::toDto)
+            .toList();
+    }
+
     @Transactional
     public Project createProject(ProjectCreate req, UUID actorId, String requestId) {
         if (projectRepository.existsBySlugAndDeletedAtIsNull(req.slug())) {
@@ -98,7 +105,8 @@ public class ProjectService {
 
         ProjectJpaEntity entity = new ProjectJpaEntity();
         applyProperties(entity, req.slug(), req.title(), req.summary(), req.contentMarkdown(),
-            req.repositoryUrl(), req.liveUrl(), req.demoUrl(), req.published(), req.featured(), req.displayOrder());
+            req.repositoryUrl(), req.liveUrl(), req.demoUrl(), req.published(), req.featured(), req.displayOrder(),
+            req.problem(), req.solution(), req.architectureFlow(), req.keyFeatures(), req.technologies());
         entity.setCreatedBy(actorId);
         entity.setUpdatedBy(actorId);
 
@@ -122,7 +130,8 @@ public class ProjectService {
         Project beforeSnapshot = toDto(entity);
 
         applyProperties(entity, req.slug(), req.title(), req.summary(), req.contentMarkdown(),
-            req.repositoryUrl(), req.liveUrl(), req.demoUrl(), req.published(), req.featured(), req.displayOrder());
+            req.repositoryUrl(), req.liveUrl(), req.demoUrl(), req.published(), req.featured(), req.displayOrder(),
+            req.problem(), req.solution(), req.architectureFlow(), req.keyFeatures(), req.technologies());
         entity.setUpdatedBy(actorId);
         entity.setUpdatedAt(Instant.now());
 
@@ -150,7 +159,9 @@ public class ProjectService {
 
     private void applyProperties(ProjectJpaEntity entity, String slug, String title, String summary,
                                  String contentMarkdown, String repositoryUrl, String liveUrl, String demoUrl,
-                                 Boolean published, Boolean featured, Integer displayOrder) {
+                                 Boolean published, Boolean featured, Integer displayOrder,
+                                 String problem, String solution, String architectureFlow,
+                                 String keyFeatures, String technologies) {
         entity.setSlug(slug);
         entity.setTitle(title);
         entity.setSummary(summary);
@@ -161,9 +172,21 @@ public class ProjectService {
         entity.setPublished(published != null ? published : false);
         entity.setFeatured(featured != null ? featured : false);
         entity.setDisplayOrder(displayOrder != null ? displayOrder : 0);
+        entity.setProblem(problem);
+        entity.setSolution(solution);
+        entity.setArchitectureFlow(architectureFlow);
+        entity.setKeyFeatures(keyFeatures);
+        entity.setTechnologies(technologies);
     }
 
     public Project toDto(ProjectJpaEntity entity) {
+        List<String> stack = entity.getTechnologies() != null && !entity.getTechnologies().isBlank()
+            ? java.util.Arrays.stream(entity.getTechnologies().split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .toList()
+            : List.of();
+
         return new Project(
             entity.getId(),
             entity.getSlug(),
@@ -177,6 +200,12 @@ public class ProjectService {
             entity.isFeatured(),
             entity.getDisplayOrder(),
             entity.getVersion(),
+            entity.getProblem(),
+            entity.getSolution(),
+            entity.getArchitectureFlow(),
+            entity.getKeyFeatures(),
+            entity.getTechnologies(),
+            stack,
             entity.getUpdatedAt()
         );
     }

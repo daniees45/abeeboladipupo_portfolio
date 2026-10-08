@@ -25,4 +25,6 @@ public interface ProjectJpaRepository extends JpaRepository<ProjectJpaEntity, UU
     Page<ProjectJpaEntity> findFeaturedPublicProjects(Pageable pageable);
 
     boolean existsBySlugAndDeletedAtIsNull(@Param("slug") String slug);
+
+    java.util.List<ProjectJpaEntity> findAllByDeletedAtIsNullOrderByDisplayOrderAsc();
 }

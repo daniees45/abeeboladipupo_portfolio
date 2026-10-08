@@ -13,10 +13,15 @@ import { useEffect, useState, type FormEvent } from 'react'
 import heroImage from '../../../assets/hero.png'
 import { usePortfolioMetrics } from '../hooks/usePortfolioMetrics'
 import { usePortfolioProjects } from '../hooks/usePortfolioProjects'
+import { useSiteSettings } from '../hooks/useSiteSettings'
+import { useCredentials } from '../hooks/useCredentials'
+import { submitContactMessage } from '../api/portfolioApi'
 import { ProjectDemoView } from './ProjectDemoView'
 import { LabsSection } from './LabsSection'
 import { ResumeModule } from './ResumeModule'
 import { useRouter } from '../../../lib/router'
+
+const CURRENT_YEAR = new Date().getFullYear()
 
 const viewportLabelMap = {
   desktop: 'Desktop View',
@@ -61,6 +66,8 @@ const navLinks = [
 export function PortfolioShell() {
   const { projects, loading, isOfflineFallback } = usePortfolioProjects()
   const { metrics, loading: metricsLoading } = usePortfolioMetrics()
+  const { settings } = useSiteSettings()
+  const { education, certifications } = useCredentials()
   const { navigate } = useRouter()
 
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -74,11 +81,14 @@ export function PortfolioShell() {
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'systems' | 'fullstack'>('all')
   const [copiedEmail, setCopiedEmail] = useState(false)
 
-  // Interactive contact form state
+  // Interactive contact form state with real backend transmission
   const [contactName, setContactName] = useState('')
   const [contactEmail, setContactEmail] = useState('')
+  const [contactSubject, setContactSubject] = useState('')
   const [contactMessage, setContactMessage] = useState('')
+  const [contactSubmitting, setContactSubmitting] = useState(false)
   const [contactSent, setContactSent] = useState(false)
+  const [contactError, setContactError] = useState<string | null>(null)
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkMode)
@@ -103,17 +113,36 @@ export function PortfolioShell() {
   })
 
   const handleCopyEmail = () => {
+    const emailToCopy = settings.contactEmail || 'abeeboladipupo@example.com'
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText('abeeboladipupo@example.com')
+      navigator.clipboard.writeText(emailToCopy)
       setCopiedEmail(true)
       setTimeout(() => setCopiedEmail(false), 2500)
     }
   }
 
-  const handleContactSubmit = (e: FormEvent) => {
+  const handleContactSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    if (!contactName || !contactEmail || !contactMessage) return
-    setContactSent(true)
+    if (!contactName.trim() || !contactEmail.trim() || !contactMessage.trim()) return
+    setContactSubmitting(true)
+    setContactError(null)
+    try {
+      await submitContactMessage({
+        senderName: contactName.trim(),
+        senderEmail: contactEmail.trim(),
+        subject: contactSubject.trim() || 'Portfolio Inquiry / Opportunity',
+        body: contactMessage.trim(),
+      })
+      setContactSent(true)
+      setContactName('')
+      setContactEmail('')
+      setContactSubject('')
+      setContactMessage('')
+    } catch (err) {
+      setContactError(err instanceof Error ? err.message : 'Transmission failed. Please reach out via email.')
+    } finally {
+      setContactSubmitting(false)
+    }
   }
 
   const stats = [
@@ -140,10 +169,10 @@ export function PortfolioShell() {
                 </div>
                 <div>
                   <p className="text-sm font-bold uppercase tracking-[0.18em] text-slate-900 dark:text-white">
-                    Abeeb Oladipupo
+                    {settings.fullName || 'Abeeb Oladipupo'}
                   </p>
                   <p className="text-[10px] uppercase tracking-wider text-cyan-600 dark:text-cyan-400 font-semibold">
-                    Software Developer | Systems &amp; Cybersecurity
+                    {settings.professionalTitle || 'Software Developer | Systems & Cybersecurity'}
                   </p>
                 </div>
               </a>
@@ -252,16 +281,22 @@ export function PortfolioShell() {
               {/* Availability Status Badge */}
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                 <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>🎓 Computer Science Graduate • Available for Full-Time Roles</span>
+                <span>{settings.availabilityBadge || '🎓 Computer Science Graduate • Available for Full-Time Roles'}</span>
               </div>
 
               {/* Main Headline */}
               <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl dark:text-white leading-[1.12]">
-                I build <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-sky-400">secure, scalable software</span> and practical technology solutions.
+                {settings.headline ? (
+                  settings.headline
+                ) : (
+                  <>
+                    I build <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-sky-400">secure, scalable software</span> and practical technology solutions.
+                  </>
+                )}
               </h1>
 
               <p className="mt-5 max-w-xl text-base leading-7 text-slate-600 sm:text-lg dark:text-slate-300">
-                Computer Science graduate focused on software development, backend systems, databases, Linux, cloud infrastructure, and cybersecurity. Passionate about engineering systems that solve real organizational problems.
+                {settings.bio || 'Computer Science graduate focused on software development, backend systems, databases, Linux, cloud infrastructure, and cybersecurity. Passionate about engineering systems that solve real organizational problems.'}
               </p>
 
               {/* 30-Second Recruiter Action Buttons */}
@@ -285,7 +320,7 @@ export function PortfolioShell() {
                   📄 View Résumé &darr;
                 </a>
                 <a
-                  href="https://github.com/abeeboladipupo"
+                  href={settings.githubUrl || 'https://github.com/abeeboladipupo'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="rounded-full border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
@@ -293,7 +328,7 @@ export function PortfolioShell() {
                   🐙 GitHub
                 </a>
                 <a
-                  href="https://linkedin.com/in/abeeboladipupo"
+                  href={settings.linkedinUrl || 'https://linkedin.com/in/abeeboladipupo'}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="rounded-full border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
@@ -579,82 +614,88 @@ export function PortfolioShell() {
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-700 dark:text-cyan-300">Verified Credentials</p>
               <h2 className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">Education &amp; Professional Certifications</h2>
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                Authentic academic qualifications and industry-recognized certifications verified for global opportunities.
+                Authentic academic qualifications and industry-recognized certifications verified for global engineering opportunities.
               </p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-3">
-              {/* Degree */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
-                <div className="flex items-center justify-between">
-                  <span className="rounded-full bg-cyan-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-cyan-700 dark:text-cyan-300">
-                    Degree
-                  </span>
-                  <span className="text-xs font-medium text-slate-400">Graduated 2024</span>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {/* Dynamic Education Cards */}
+              {education.map((edu) => (
+                <div key={edu.id} className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="rounded-full bg-cyan-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-cyan-700 dark:text-cyan-300">
+                        Degree
+                      </span>
+                      <span className="text-xs font-medium text-slate-400">
+                        {edu.currentEducation ? 'In Progress' : edu.endedOn ? `Graduated ${new Date(edu.endedOn).getFullYear()}` : 'Completed'}
+                      </span>
+                    </div>
+                    <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">
+                      {edu.degree}
+                    </h3>
+                    <p className="mt-1 text-xs font-semibold text-cyan-600 dark:text-cyan-400">
+                      {edu.institution} {edu.fieldOfStudy ? `• ${edu.fieldOfStudy}` : ''}
+                    </p>
+                    {edu.description && (
+                      <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
+                        {edu.description}
+                      </p>
+                    )}
+                  </div>
+                  {edu.credentialUrl && (
+                    <div className="mt-4 border-t border-slate-100 pt-3 dark:border-slate-800">
+                      <a
+                        href={edu.credentialUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400"
+                      >
+                        <span>✓</span> Verified Credential &rarr;
+                      </a>
+                    </div>
+                  )}
                 </div>
-                <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">
-                  Bachelor of Science in Computer Science
-                </h3>
-                <p className="mt-1 text-xs font-semibold text-cyan-600 dark:text-cyan-400">
-                  Valley View University
-                </p>
-                <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
-                  Comprehensive 4-year Computer Science curriculum spanning software engineering, database management systems, data structures &amp; algorithms, operating systems, and computer networks.
-                </p>
-                <div className="mt-4 border-t border-slate-100 pt-3 dark:border-slate-800">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                    <span>✓</span> WES Evaluated Credential
-                  </span>
-                </div>
-              </div>
+              ))}
 
-              {/* Cisco Certification */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
-                <div className="flex items-center justify-between">
-                  <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
-                    Certification
-                  </span>
-                  <span className="text-xs font-medium text-slate-400">Verified</span>
+              {/* Dynamic Certification Cards */}
+              {certifications.map((cert) => (
+                <div key={cert.id} className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
+                        Certification
+                      </span>
+                      <span className="text-xs font-medium text-slate-400">
+                        {new Date(cert.issueDate).getFullYear()} Verified
+                      </span>
+                    </div>
+                    <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">
+                      {cert.name}
+                    </h3>
+                    <p className="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                      {cert.issuingOrganization}
+                    </p>
+                    {cert.credentialId && (
+                      <p className="mt-2 font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                        Credential ID: {cert.credentialId}
+                      </p>
+                    )}
+                  </div>
+                  {cert.credentialUrl && (
+                    <div className="mt-4 border-t border-slate-100 pt-3 dark:border-slate-800">
+                      <a
+                        href={cert.credentialUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400"
+                      >
+                        <span>✓</span> Digital Credential Issued &rarr;
+                      </a>
+                    </div>
+                  )}
                 </div>
-                <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">
-                  Introduction to Cybersecurity
-                </h3>
-                <p className="mt-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                  Cisco Networking Academy
-                </p>
-                <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
-                  Certified foundational competencies in global threat landscapes, defense-in-depth, cryptographic confidentiality, network integrity, and defensive security controls.
-                </p>
-                <div className="mt-4 border-t border-slate-100 pt-3 dark:border-slate-800">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                    <span>✓</span> Digital Credential Issued
-                  </span>
-                </div>
-              </div>
-
-              {/* WES Evaluation */}
-              <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
-                <div className="flex items-center justify-between">
-                  <span className="rounded-full bg-indigo-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
-                    Credential Evaluation
-                  </span>
-                  <span className="text-xs font-medium text-slate-400">Official</span>
-                </div>
-                <h3 className="mt-4 text-base font-bold text-slate-900 dark:text-white">
-                  World Education Services (WES)
-                </h3>
-                <p className="mt-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400">
-                  Academic Credential Evaluation
-                </p>
-                <p className="mt-3 text-xs leading-relaxed text-slate-600 dark:text-slate-300">
-                  Official third-party evaluation verifying undergraduate degree equivalence and institution accreditation for United States &amp; Canadian employers and institutions.
-                </p>
-                <div className="mt-4 border-t border-slate-100 pt-3 dark:border-slate-800">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                    <span>✓</span> Authenticated Degree Equivalence
-                  </span>
-                </div>
-              </div>
+              ))}
             </div>
           </section>
 
@@ -708,11 +749,11 @@ export function PortfolioShell() {
                 {/* Email Pill with 1-Click Copy */}
                 <div className="mt-6 flex flex-wrap items-center gap-3">
                   <a
-                    href="mailto:abeeboladipupo@example.com"
+                    href={`mailto:${settings.contactEmail || 'abeeboladipupo@example.com'}`}
                     className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
                   >
                     <span>✉️</span>
-                    <span>abeeboladipupo@example.com</span>
+                    <span>{settings.contactEmail || 'abeeboladipupo@example.com'}</span>
                   </a>
                   <button
                     type="button"
@@ -723,23 +764,25 @@ export function PortfolioShell() {
                   </button>
                 </div>
 
-                {/* Social Profiles */}
-                <div className="mt-6 flex items-center gap-4 text-xs font-semibold text-slate-600 dark:text-slate-400">
-                  <a href="https://linkedin.com/in/abeeboladipupo" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-500">
+                {/* Social Profiles & Location */}
+                <div className="mt-6 flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-600 dark:text-slate-400">
+                  <a href={settings.linkedinUrl || 'https://linkedin.com/in/abeeboladipupo'} target="_blank" rel="noopener noreferrer" className="hover:text-cyan-500">
                     LinkedIn &rarr;
                   </a>
-                  <a href="https://github.com/abeeboladipupo" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-500">
+                  <a href={settings.githubUrl || 'https://github.com/abeeboladipupo'} target="_blank" rel="noopener noreferrer" className="hover:text-cyan-500">
                     GitHub &rarr;
                   </a>
                   <span>•</span>
-                  <span>Computer Science Graduate • Open to Opportunities</span>
+                  <span>{settings.location || 'Accra / Open to Relocation & Remote'}</span>
+                  <span>•</span>
+                  <span>{settings.openToWork ? '🟢 Available for Roles' : 'Occupied'}</span>
                 </div>
               </div>
 
               {/* Direct Recruiter Message Form */}
               <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900/90">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">Send a Direct Message</h3>
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Direct transmission to Abeeb's inbox.</p>
+                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Direct transmission to Abeeb's portfolio inbox.</p>
 
                 {contactSent ? (
                   <div className="mt-5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-center">
@@ -750,6 +793,7 @@ export function PortfolioShell() {
                       onClick={() => {
                         setContactSent(false)
                         setContactMessage('')
+                        setContactSubject('')
                       }}
                       className="mt-4 text-xs text-cyan-400 underline cursor-pointer"
                     >
@@ -780,6 +824,15 @@ export function PortfolioShell() {
                       />
                     </div>
                     <div>
+                      <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">Subject / Topic</label>
+                      <input
+                        value={contactSubject}
+                        onChange={(e) => setContactSubject(e.target.value)}
+                        placeholder="Software Developer Opportunity / Systems Role"
+                        className="mt-1 w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2 text-xs text-slate-900 outline-none transition focus:border-cyan-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                      />
+                    </div>
+                    <div>
                       <label className="block text-[11px] font-semibold uppercase tracking-wider text-slate-400">Message / Opportunity Details</label>
                       <textarea
                         required
@@ -790,11 +843,17 @@ export function PortfolioShell() {
                         className="mt-1 w-full rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2 text-xs text-slate-900 outline-none transition focus:border-cyan-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                       />
                     </div>
+                    {contactError && (
+                      <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-2.5 text-xs text-rose-400">
+                        ⚠️ {contactError}
+                      </div>
+                    )}
                     <button
                       type="submit"
-                      className="w-full rounded-xl bg-cyan-500 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-cyan-400 shadow-md shadow-cyan-500/20 cursor-pointer"
+                      disabled={contactSubmitting}
+                      className="w-full rounded-xl bg-cyan-500 py-2.5 text-xs font-bold text-slate-950 transition hover:bg-cyan-400 shadow-md shadow-cyan-500/20 cursor-pointer disabled:opacity-50"
                     >
-                      Dispatch Message &rarr;
+                      {contactSubmitting ? 'Transmitting to Server...' : 'Dispatch Message →'}
                     </button>
                   </form>
                 )}
@@ -802,7 +861,7 @@ export function PortfolioShell() {
             </div>
 
             <div className="mt-12 border-t border-slate-200 pt-6 text-center text-xs text-slate-400 dark:border-slate-800">
-              © 2026 Abeeb Oladipupo • B.Sc. Computer Science • Software Developer | Systems &amp; Cybersecurity
+              © {CURRENT_YEAR} {settings.fullName || 'Abeeb Oladipupo'} • {settings.professionalTitle || 'Software Developer | Systems & Cybersecurity'}
             </div>
           </footer>
 

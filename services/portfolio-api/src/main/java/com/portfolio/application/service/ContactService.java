@@ -40,6 +40,41 @@ public class ContactService {
         contactRepository.save(entity);
     }
 
+    public List<com.portfolio.web.dto.ContactMessageDtos.ContactMessageDto> listContactMessages() {
+        return contactRepository.findAllByOrderByCreatedAtDesc()
+            .stream()
+            .map(this::toDto)
+            .toList();
+    }
+
+    @Transactional
+    public com.portfolio.web.dto.ContactMessageDtos.ContactMessageDto updateMessageStatus(UUID id, String status, UUID actorId, String requestId) {
+        ContactMessageJpaEntity entity = contactRepository.findById(id)
+            .orElseThrow(() -> new com.portfolio.web.error.Exceptions.ResourceNotFoundException("Message not found with id: " + id));
+
+        entity.setStatus(status);
+        if ("RESOLVED".equalsIgnoreCase(status) || "SPAM".equalsIgnoreCase(status)) {
+            entity.setResolvedAt(Instant.now());
+            entity.setResolvedBy(actorId);
+        }
+
+        ContactMessageJpaEntity updated = contactRepository.save(entity);
+        return toDto(updated);
+    }
+
+    private com.portfolio.web.dto.ContactMessageDtos.ContactMessageDto toDto(ContactMessageJpaEntity e) {
+        return new com.portfolio.web.dto.ContactMessageDtos.ContactMessageDto(
+            e.getId(),
+            e.getSenderName(),
+            e.getSenderEmail(),
+            e.getSubject(),
+            e.getBody(),
+            e.getStatus(),
+            e.getCreatedAt(),
+            e.getResolvedAt()
+        );
+    }
+
     /**
      * Automated GDPR/Privacy 90-day retention purge scheduled daily at 03:00 AM.
      */
